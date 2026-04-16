@@ -25,6 +25,11 @@ wheels/
 
 # Environment variables
 .env
+.env.local
+.env.*.local
+
+# Version management
+.tool-versions
 
 # IDE
 .vscode/

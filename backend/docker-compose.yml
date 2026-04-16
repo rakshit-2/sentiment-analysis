@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  # FastAPI Backend Service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sentiment-analysis-backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env.local
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+      - MONGODB_DATABASE=${MONGODB_DATABASE}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION}
+      - S3_BUCKET_NAME=${S3_BUCKET_NAME}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - APP_ENV=${APP_ENV:-development}
+      - DEBUG=${DEBUG:-True}
+    volumes:
+      # Mount code for development (hot reload)
+      - ./backend/app:/app/app:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - sentiment-network
+
+  # Optional: Local MongoDB (uncomment if you want local MongoDB instead of Atlas)
+  # mongodb:
+  #   image: mongo:7.0
+  #   container_name: sentiment-analysis-mongodb
+  #   ports:
+  #     - "27017:27017"
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: admin
+  #     MONGO_INITDB_ROOT_PASSWORD: password123
+  #     MONGO_INITDB_DATABASE: sentiment_analysis
+  #   volumes:
+  #     - mongodb_data:/data/db
+  #     - mongodb_config:/data/configdb
+  #   restart: unless-stopped
+  #   networks:
+  #     - sentiment-network
+
+networks:
+  sentiment-network:
+    driver: bridge
+
+# Uncomment if using local MongoDB
+# volumes:
+#   mongodb_data:
+#   mongodb_config:

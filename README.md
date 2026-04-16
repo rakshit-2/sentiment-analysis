@@ -39,11 +39,11 @@ sentiment-analysis/
 - **Database:** MongoDB
 - **Storage:** AWS S3
 - **LLM:** OpenAI API
-- **Language:** Python 3.9+
+- **Language:** Python 3.11.6
 
 ## 📋 Prerequisites
 
-- Python 3.9 or higher
+- Python 3.11.6 (specified in `backend/.tool-versions`)
 - MongoDB (local or Atlas)
 - AWS Account (S3 access)
 - OpenAI API Key
