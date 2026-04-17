@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  # FastAPI Backend Service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sentiment-analysis-backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env.local
+    volumes:
+      - ./backend/app:/app/app:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 1
+      start_period: 10s
+    networks:
+      - sentiment-network
+networks:
+  sentiment-network:
+    driver: bridge
+

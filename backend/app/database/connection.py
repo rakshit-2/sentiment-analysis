@@ -88,17 +88,34 @@ async def create_indexes():
     try:
         db = get_database()
         
-        # Create index on transcript_id in transcripts collection
-        db.transcripts.create_index("transcript_id", unique=True)
-        logger.info("✅ Created index on transcripts.transcript_id")
+        # Transcripts collection indexes
+        db.transcripts.create_index("uuid", unique=True)
+        logger.info("✅ Created unique index on transcripts.uuid")
         
-        # Create index on analysis_id in analyses collection
-        db.analyses.create_index("analysis_id", unique=True)
-        logger.info("✅ Created index on analyses.analysis_id")
+        db.transcripts.create_index("source")
+        logger.info("✅ Created index on transcripts.source")
         
-        # Create index on transcript_id in analyses collection for foreign key lookups
+        db.transcripts.create_index("is_deleted")
+        logger.info("✅ Created index on transcripts.is_deleted")
+        
+        db.transcripts.create_index([("created_at", -1)])
+        logger.info("✅ Created descending index on transcripts.created_at")
+        
+        # Analyses collection indexes
+        db.analyses.create_index("uuid", unique=True)
+        logger.info("✅ Created unique index on analyses.uuid")
+        
         db.analyses.create_index("transcript_id")
         logger.info("✅ Created index on analyses.transcript_id")
+        
+        db.analyses.create_index("status")
+        logger.info("✅ Created index on analyses.status")
+        
+        db.analyses.create_index("is_deleted")
+        logger.info("✅ Created index on analyses.is_deleted")
+        
+        db.analyses.create_index([("created_at", -1)])
+        logger.info("✅ Created descending index on analyses.created_at")
         
     except Exception as e:
         logger.warning(f"⚠️ Error creating indexes: {str(e)}")
