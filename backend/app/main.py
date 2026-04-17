@@ -76,9 +76,17 @@ async def health_check():
     }
 
 
-# Import and include routers (will be added later)
-# from app.routes import transcript, analysis
-# app.include_router(transcript.router, prefix="/api/transcripts", tags=["Transcripts"])
+# Import and include routers
+from app.routes import transcript
+
+app.include_router(
+    transcript.router,
+    prefix="/api/transcripts",
+    tags=["Transcripts"]
+)
+
+# Analysis router (to be added later)
+# from app.routes import analysis
 # app.include_router(analysis.router, prefix="/api/analyses", tags=["Analyses"])
 
 
