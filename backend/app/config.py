@@ -18,6 +18,13 @@ class Settings(BaseSettings):
     # OpenAI Configuration
     openai_api_key: Optional[str] = None
     
+    # Celery Configuration
+    celery_broker_url: str = "redis://redis:6379/0"
+    celery_result_backend: str = "redis://redis:6379/0"
+    
+    # Analysis Job Configuration
+    analysis_batch_size: int = 5
+    
     # Application Settings
     app_env: str = "development"
     debug: bool = True
