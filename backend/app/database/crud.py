@@ -233,3 +233,24 @@ async def soft_delete_analysis(uuid: str) -> bool:
     )
     
     return result.modified_count > 0
+
+
+# Synchronous versions for Celery tasks
+
+def create_analysis_sync(analysis_data: AnalysisCreate) -> Dict[str, Any]:
+    """Create a new analysis in the database (synchronous version for Celery)."""
+    collection = get_analyses_collection()
+    
+    # Create DB model with auto-generated fields
+    db_analysis = AnalysisDB(
+        **analysis_data.model_dump(exclude_none=True)
+    )
+    
+    # Insert into MongoDB
+    result = collection.insert_one(db_analysis.to_dict())
+    
+    # Fetch and return the created document
+    created_doc = collection.find_one({"_id": result.inserted_id})
+    created_doc["_id"] = str(created_doc["_id"])
+    
+    return created_doc

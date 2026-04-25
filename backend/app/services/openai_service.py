@@ -1,9 +1,11 @@
 """
 OpenAI API service for sentiment analysis.
 """
+import json
 import logging
 from typing import Dict, Any
 from openai import OpenAI
+from openai import RateLimitError, APIError, APIConnectionError, APITimeoutError
 
 from app.config import settings
 
@@ -72,7 +74,6 @@ Format your response as JSON with these fields:
         content = response.choices[0].message.content
         
         # Parse the JSON response
-        import json
         result_data = json.loads(content)
         
         # Calculate tokens and cost
@@ -90,7 +91,7 @@ Format your response as JSON with these fields:
                 "emotions": result_data.get("emotions", []),
                 "summary": result_data.get("summary", ""),
                 "detailed_feedback": result_data.get("detailed_feedback", ""),
-                "raw_response": json.loads(content)
+                "raw_response": result_data
             },
             "model_info": {
                 "model": response.model,
@@ -99,12 +100,28 @@ Format your response as JSON with these fields:
             }
         }
         
+    except RateLimitError as e:
+        logger.error(f"OpenAI rate limit exceeded for {transcript_id}: {str(e)}")
+        raise ValueError(f"Rate limit exceeded. Please try again later: {str(e)}")
+    
+    except APIConnectionError as e:
+        logger.error(f"OpenAI connection error for {transcript_id}: {str(e)}")
+        raise ValueError(f"Failed to connect to OpenAI API: {str(e)}")
+    
+    except APITimeoutError as e:
+        logger.error(f"OpenAI timeout error for {transcript_id}: {str(e)}")
+        raise ValueError(f"OpenAI API request timed out: {str(e)}")
+    
+    except APIError as e:
+        logger.error(f"OpenAI API error for {transcript_id}: {str(e)}")
+        raise ValueError(f"OpenAI API error: {str(e)}")
+    
     except json.JSONDecodeError as e:
-        logger.error(f"Failed to parse OpenAI response: {str(e)}")
+        logger.error(f"Failed to parse OpenAI response for {transcript_id}: {str(e)}")
         raise ValueError(f"Invalid JSON response from OpenAI: {str(e)}")
     
     except Exception as e:
-        logger.error(f"Error calling OpenAI API: {str(e)}")
+        logger.error(f"Unexpected error calling OpenAI API for {transcript_id}: {str(e)}")
         raise
 
 

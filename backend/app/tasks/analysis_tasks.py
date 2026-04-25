@@ -7,7 +7,7 @@ from typing import List, Dict, Any
 
 from app.celery_app import celery_app
 from app.database.connection import get_transcripts_collection, get_analyses_collection
-from app.database.crud import create_analysis
+from app.database.crud import create_analysis_sync
 from app.models import AnalysisCreate, AnalysisStatus, AnalysisUpdate, AnalysisResult, ModelInfo
 from app.services.openai_service import analyze_sentiment
 from app.config import settings
@@ -101,7 +101,7 @@ def analyze_unprocessed_transcripts(self, batch_size: int = None):
             try:
                 # Create initial analysis record
                 analysis_data = AnalysisCreate(transcript_id=transcript_uuid)
-                created_analysis = create_analysis(analysis_data)
+                created_analysis = create_analysis_sync(analysis_data)
                 analysis_uuid = created_analysis["uuid"]
                 
                 logger.info(f"Created analysis record: {analysis_uuid}")

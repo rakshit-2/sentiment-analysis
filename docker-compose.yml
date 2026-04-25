@@ -33,7 +33,7 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-    restart: unless-stopped
+    restart: "on-failure:1"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -59,7 +59,7 @@ services:
         condition: service_healthy
       backend:
         condition: service_started
-    restart: unless-stopped
+    restart: "on-failure:1"
     networks:
       - sentiment-network
 
@@ -79,7 +79,7 @@ services:
         condition: service_healthy
       celery-worker:
         condition: service_started
-    restart: unless-stopped
+    restart: "on-failure:1"
     networks:
       - sentiment-network
 
@@ -99,7 +99,7 @@ services:
         condition: service_healthy
       celery-worker:
         condition: service_started
-    restart: unless-stopped
+    restart: "on-failure:1"
     networks:
       - sentiment-network
 

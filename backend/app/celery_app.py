@@ -1,9 +1,13 @@
 """
 Celery application configuration for background task processing.
 """
+import logging
 from celery import Celery
 from celery.schedules import crontab
+from celery.signals import worker_process_init, worker_process_shutdown
 from app.config import settings
+
+logger = logging.getLogger(__name__)
 
 # Create Celery app
 celery_app = Celery(
@@ -12,6 +16,36 @@ celery_app = Celery(
     backend=settings.celery_result_backend,
     include=["app.tasks.analysis_tasks"]
 )
+
+
+@worker_process_init.connect
+def init_worker(**kwargs):
+    """
+    Initialize MongoDB connection when Celery worker process starts.
+    This runs once per worker process.
+    """
+    logger.info("Initializing Celery worker - connecting to MongoDB...")
+    from app.database.connection import connect_to_mongo_sync
+    try:
+        connect_to_mongo_sync()
+        logger.info("✅ Celery worker MongoDB connection established")
+    except Exception as e:
+        logger.error(f"❌ Failed to initialize MongoDB in Celery worker: {str(e)}")
+        raise
+
+
+@worker_process_shutdown.connect
+def shutdown_worker(**kwargs):
+    """
+    Close MongoDB connection when Celery worker process shuts down.
+    """
+    logger.info("Shutting down Celery worker - closing MongoDB connection...")
+    from app.database.connection import close_mongo_connection_sync
+    try:
+        close_mongo_connection_sync()
+        logger.info("✅ Celery worker MongoDB connection closed")
+    except Exception as e:
+        logger.error(f"⚠️ Error closing MongoDB in Celery worker: {str(e)}")
 
 # Celery configuration
 celery_app.conf.update(
