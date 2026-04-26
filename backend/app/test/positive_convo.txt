@@ -1,0 +1,20 @@
+Agent: Hi, Am i speaking to Mike?
+User: Yes, whos this?
+Agent: Hi Mike, this is John and I am calling on behalf of Akamai. How are you doing today?
+User: Yea fine. How can i help you?
+Agent: Well, Have are you aware of Akamai?
+User: Yes.
+Agent: Great, Akamai has introduced a new research paper on Modern Cyber Security Trends 2026. This paper talks about the latest trends and ways to combat cyber attacks. Just to confirm, you are the IT Director at Xiom tech right?
+User: Yes.
+Agent: So is it ok if I go ahead and share the paper with you on your email and you can check it?
+User: Yes thats fine.
+Agent: Great, let me confirm your email address, I have it as mike.johnson@xiom.com is that correct?
+User: yes, thats correct.
+Agent: Thanks. Also, since you are the IT director, would you be a decision maker or an influencer in your organisation when it comes to improving cyber security posture.
+User: Ill say I am an influencer. The decisiion team has mulitiple people.
+Agent: Sure. Noted. I will send this paper to you shortly and you can check it. Also, do I have your consent for akamai representative to contact you? She will have a brief conversation about the cyber security posture and you can clear doubts if any?
+User: Yes, thats ok. But in the next week.
+Agent: Ok, Next week thursday is fine for you? around 3 pm?
+User: that works
+Agent: Noted, Ill update the calendar accordingly. Thank you for your time today. Have a gret day ahead.
+User:Bye

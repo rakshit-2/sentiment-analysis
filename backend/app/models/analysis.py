@@ -13,25 +13,80 @@ class AnalysisStatus(str, Enum):
     FAILED = "failed"
 
 
+class MetricScore(BaseModel):
+    """Model for individual metric scoring."""
+    score: int = Field(..., ge=0, le=10, description="Score from 1-10")
+    evidence: List[str] = Field(default_factory=list, description="Quote snippets from transcript")
+    rationale: str = Field(..., description="Brief explanation of the score")
+
+
+class AskingToTellingMetric(BaseModel):
+    """Model for asking to telling ratio metric."""
+    score: int = Field(..., ge=0, le=10, description="Score from 1-10")
+    estimated_ratio: str = Field(..., description="Estimated ratio like '1:2' or '3:1'")
+    evidence: List[str] = Field(default_factory=list, description="Quote snippets")
+    rationale: str = Field(..., description="Brief explanation")
+
+
+class CallSummary(BaseModel):
+    """Model for call summary."""
+    overall_call_sentiment: str = Field(..., description="Positive/Neutral/Negative")
+    lead_temperature: str = Field(..., description="Cold/Warm/Hot")
+    meeting_likelihood: int = Field(..., ge=0, le=100, description="Percentage 0-100")
+    follow_up_readiness: int = Field(..., ge=0, le=100, description="Percentage 0-100")
+
+
+class PrimaryMetrics(BaseModel):
+    """Model for primary analysis dimensions."""
+    live_tone_score: MetricScore
+    objection_recovery_arc: MetricScore
+    champion_signals: MetricScore
+    buying_commitment_momentum: MetricScore
+    competitive_mention_sentiment: MetricScore
+    call_closing_sentiment: MetricScore
+
+
+class ParameterMetrics(BaseModel):
+    """Model for parameter analysis dimensions."""
+    prospect_tone: MetricScore
+    pain_urgency: MetricScore
+    champion_strength: MetricScore
+    objection_temperature: MetricScore
+    buying_commitment: MetricScore
+    competitive_position: MetricScore
+    trust_openness: MetricScore
+    expansion_potential: MetricScore
+    decision_friction_indicators: MetricScore
+    asking_to_telling_ratio: AskingToTellingMetric
+    transparency_score: MetricScore
+
+
 class AnalysisResult(BaseModel):
-    """Model for LLM analysis result."""
-    sentiment: Optional[str] = Field(None, description="Overall sentiment: positive, negative, neutral")
-    confidence: Optional[float] = Field(None, ge=0.0, le=1.0, description="Confidence score 0-1")
-    key_phrases: Optional[List[str]] = Field(default_factory=list, description="Key phrases extracted")
-    emotions: Optional[List[str]] = Field(default_factory=list, description="Emotions detected")
-    summary: Optional[str] = Field(None, description="Brief summary")
-    detailed_feedback: Optional[str] = Field(None, description="Detailed feedback from LLM")
-    raw_response: Optional[Dict[str, Any]] = Field(None, description="Full OpenAI API response")
+    """Model for B2B sales conversation intelligence analysis result."""
+    summary: CallSummary = Field(..., description="High-level call summary")
+    primary_metrics: PrimaryMetrics = Field(..., description="Primary analysis dimensions")
+    parameter_metrics: ParameterMetrics = Field(..., description="Detailed parameter metrics")
+    notable_buying_signals: List[str] = Field(default_factory=list, description="Key buying signals detected")
+    objections_detected: List[str] = Field(default_factory=list, description="Objections raised")
+    risks_detected: List[str] = Field(default_factory=list, description="Risks identified")
+    next_best_action: List[str] = Field(default_factory=list, description="Recommended next actions")
 
     class Config:
         json_schema_extra = {
             "example": {
-                "sentiment": "positive",
-                "confidence": 0.85,
-                "key_phrases": ["great service", "very helpful"],
-                "emotions": ["satisfaction", "happiness"],
-                "summary": "Customer is satisfied with the service",
-                "detailed_feedback": "The customer expressed high satisfaction..."
+                "summary": {
+                    "overall_call_sentiment": "Positive",
+                    "lead_temperature": "Warm",
+                    "meeting_likelihood": 75,
+                    "follow_up_readiness": 80
+                },
+                "primary_metrics": {
+                    "live_tone_score": {"score": 7, "evidence": ["Great to connect"], "rationale": "Positive engagement"}
+                },
+                "notable_buying_signals": ["Mentioned budget available"],
+                "objections_detected": ["Price concerns"],
+                "risks_detected": ["Decision timeline unclear"],
+                "next_best_action": ["Send pricing proposal", "Schedule demo"]
             }
         }
 
