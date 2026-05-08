@@ -29,6 +29,9 @@ class Settings(BaseSettings):
     app_env: str = "development"
     debug: bool = True
     
+    # JWT Secret Key (generate a secure key for production)
+    SECRET_KEY: str
+    
     class Config:
         env_file = ".env.local"
         env_file_encoding = "utf-8"

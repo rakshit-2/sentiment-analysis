@@ -46,3 +46,10 @@ Thumbs.db
 .pytest_cache/
 .coverage
 htmlcov/
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes

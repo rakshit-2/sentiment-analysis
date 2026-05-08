@@ -1,0 +1,19 @@
+.layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.content {
+  margin-top: 60px; // Height of navbar
+  padding: 2rem;
+  flex: 1;
+  background-color: #f8f9fa;
+  min-height: calc(100vh - 60px);
+}
+
+@media (max-width: 768px) {
+  .content {
+    padding: 1rem;
+  }
+}

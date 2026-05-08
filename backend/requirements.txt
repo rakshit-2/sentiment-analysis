@@ -12,3 +12,6 @@ requests==2.31.0
 celery[redis]==5.3.6
 redis==5.0.1
 flower==2.0.1
+python-jose[cryptography]==3.3.0
+passlib==1.7.4
+bcrypt==4.0.1

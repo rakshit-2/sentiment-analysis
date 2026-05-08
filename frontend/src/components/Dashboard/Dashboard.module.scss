@@ -1,0 +1,346 @@
+.dashboard {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: 2rem;
+
+  h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 0.5rem 0;
+  }
+}
+
+.subtitle {
+  color: #666;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.section {
+  margin-bottom: 3rem;
+}
+
+.sectionHeader {
+  margin-bottom: 1.5rem;
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 0.25rem 0;
+  }
+}
+
+.sectionSubtitle {
+  color: #666;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.chartContainer {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.emptyChart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 350px;
+  color: #999;
+}
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  }
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.cardTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #333;
+  flex: 1;
+  line-height: 1.4;
+}
+
+.status {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.statusSuccess {
+  background-color: #e6f7ed;
+  color: #2d7a4f;
+}
+
+.statusFailed {
+  background-color: #fdecea;
+  color: #c82333;
+}
+
+.statusProcessing {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.statusPending {
+  background-color: #e7f3ff;
+  color: #004085;
+}
+
+.cardContent {
+  margin-bottom: 1rem;
+}
+
+.metricRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.metricLabel {
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.metricValue {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.sentimentPositive {
+  color: #2d7a4f;
+}
+
+.sentimentNegative {
+  color: #c82333;
+}
+
+.sentimentNeutral {
+  color: #666;
+}
+
+.signals {
+  margin-top: 0.75rem;
+}
+
+.signalBadge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background-color: #e6f7ed;
+  color: #2d7a4f;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.pendingText,
+.errorText {
+  font-size: 0.875rem;
+  color: #999;
+  margin: 0;
+}
+
+.errorText {
+  color: #c82333;
+}
+
+.cardFooter {
+  padding-top: 0.75rem;
+  border-top: 1px solid #f0f0f0;
+}
+
+.timestamp {
+  font-size: 0.75rem;
+  color: #999;
+}
+
+.loading,
+.error {
+  text-align: center;
+  padding: 3rem;
+}
+
+.loading {
+  color: #666;
+  font-size: 1.125rem;
+}
+
+.error {
+  h3 {
+    color: #c82333;
+    margin: 0 0 0.5rem 0;
+  }
+
+  p {
+    color: #666;
+    margin: 0 0 1rem 0;
+  }
+}
+
+.retryButton {
+  padding: 0.75rem 1.5rem;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #357abd;
+  }
+}
+
+.emptyState {
+  text-align: center;
+  padding: 3rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  p {
+    color: #999;
+    margin: 0;
+  }
+}
+
+.metricsRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.metricCard {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 1.5rem 0;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #f0f0f0;
+  }
+}
+
+.metricCardFull {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1.5rem;
+
+  h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 1.5rem 0;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #f0f0f0;
+  }
+}
+
+.metricSelector {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+  label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #666;
+  }
+}
+
+.metricSelect {
+  padding: 0.5rem 1rem;
+  border: 1px solid #d0d0d0;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  color: #333;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+
+  &:hover {
+    border-color: #4a90e2;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+  }
+}
+
+@media (max-width: 900px) {
+  .metricsRow {
+    grid-template-columns: 1fr;
+  }
+  
+  .metricCard,
+  .metricCardFull {
+    padding: 1.25rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .cardGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .header h1 {
+    font-size: 1.75rem;
+  }
+
+  .metricSelector {
+    flex-direction: column;
+    align-items: stretch;
+
+    select {
+      width: 100%;
+    }
+  }
+}

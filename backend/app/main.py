@@ -54,6 +54,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Add authentication middleware
+from app.middleware.auth import verify_auth_token
+app.middleware("http")(verify_auth_token)
+
 
 @app.get("/")
 async def root():
@@ -77,8 +81,16 @@ async def health_check():
 
 
 # Import and include routers
-from app.routes import transcript, analysis
+from app.routes import transcript, analysis, auth
 
+# Auth routes (no authentication required)
+app.include_router(
+    auth.router,
+    prefix="/api/auth",
+    tags=["Authentication"]
+)
+
+# Protected routes (authentication required)
 app.include_router(
     transcript.router,
     prefix="/api/transcripts",

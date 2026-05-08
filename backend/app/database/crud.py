@@ -2,7 +2,7 @@
 CRUD operations for MongoDB collections.
 """
 from typing import Optional, List, Dict, Any
-from datetime import datetime
+from datetime import datetime, timedelta
 from bson import ObjectId
 
 from app.database.connection import get_transcripts_collection, get_analyses_collection
@@ -196,6 +196,182 @@ async def list_analyses(
         analysis["_id"] = str(analysis["_id"])
     
     return analyses
+
+
+async def get_recent_analyses(hours: int = 24) -> Dict[str, Any]:
+    """Get analyses from the last N hours with transcript info."""
+    analyses_collection = get_analyses_collection()
+    transcripts_collection = get_transcripts_collection()
+    
+    # Calculate the time threshold
+    time_threshold = datetime.utcnow() - timedelta(hours=hours)
+    
+    # Query for recent analyses
+    query = {
+        "is_deleted": False,
+        "created_at": {"$gte": time_threshold}
+    }
+    
+    analyses = list(
+        analyses_collection.find(query)
+        .sort("created_at", -1)
+    )
+    
+    # Enrich with transcript data
+    enriched_analyses = []
+    for analysis in analyses:
+        analysis["_id"] = str(analysis["_id"])
+        
+        # Fetch associated transcript
+        transcript = transcripts_collection.find_one({
+            "uuid": analysis["transcript_id"],
+            "is_deleted": False
+        })
+        
+        if transcript:
+            transcript["_id"] = str(transcript["_id"])
+            analysis["transcript"] = transcript
+        
+        enriched_analyses.append(analysis)
+    
+    return {
+        "count": len(enriched_analyses),
+        "hours": hours,
+        "analyses": enriched_analyses
+    }
+
+
+async def get_analysis_trends(weeks: int = 8) -> List[Dict[str, Any]]:
+    """Get weekly analysis trends for the last N weeks."""
+    collection = get_analyses_collection()
+    
+    # Calculate the start date
+    start_date = datetime.utcnow() - timedelta(weeks=weeks)
+    
+    # MongoDB aggregation pipeline
+    pipeline = [
+        {
+            "$match": {
+                "is_deleted": False,
+                "created_at": {"$gte": start_date}
+            }
+        },
+        {
+            "$group": {
+                "_id": {
+                    "year": {"$year": "$created_at"},
+                    "week": {"$week": "$created_at"}
+                },
+                "count": {"$sum": 1},
+                "first_date": {"$min": "$created_at"}
+            }
+        },
+        {
+            "$sort": {"first_date": 1}
+        }
+    ]
+    
+    results = list(collection.aggregate(pipeline))
+    
+    # Format the results
+    trends = []
+    for result in results:
+        year = result["_id"]["year"]
+        week = result["_id"]["week"]
+        trends.append({
+            "week": f"{year}-W{week:02d}",
+            "count": result["count"],
+            "date": result["first_date"].strftime("%Y-%m-%d")
+        })
+    
+    return trends
+
+
+async def get_detailed_metrics_trends(weeks: int = 8) -> List[Dict[str, Any]]:
+    """Get detailed metrics trends with analysis result aggregations."""
+    collection = get_analyses_collection()
+    
+    # Calculate the start date
+    start_date = datetime.utcnow() - timedelta(weeks=weeks)
+    
+    # MongoDB aggregation pipeline
+    pipeline = [
+        {
+            "$match": {
+                "is_deleted": False,
+                "created_at": {"$gte": start_date},
+                "status": "success",  # Only successful analyses
+                "result": {"$exists": True}
+            }
+        },
+        {
+            "$group": {
+                "_id": {
+                    "year": {"$year": "$created_at"},
+                    "week": {"$week": "$created_at"}
+                },
+                "total_analyses": {"$sum": 1},
+                "first_date": {"$min": "$created_at"},
+                # Sentiment aggregation
+                "sentiments": {"$push": "$result.summary.overall_call_sentiment"},
+                # Lead temperature aggregation
+                "lead_temps": {"$push": "$result.summary.lead_temperature"},
+                # Average metrics
+                "meeting_likelihoods": {"$push": "$result.summary.meeting_likelihood"},
+                "follow_up_readiness": {"$push": "$result.summary.follow_up_readiness"}
+            }
+        },
+        {
+            "$sort": {"first_date": 1}
+        }
+    ]
+    
+    results = list(collection.aggregate(pipeline))
+    
+    # Format and calculate statistics
+    trends = []
+    for result in results:
+        year = result["_id"]["year"]
+        week_num = result["_id"]["week"]
+        
+        # Count sentiment categories
+        sentiments = result.get("sentiments", [])
+        sentiment_counts = {
+            "positive": sum(1 for s in sentiments if s and "positive" in s.lower()),
+            "negative": sum(1 for s in sentiments if s and "negative" in s.lower()),
+            "neutral": sum(1 for s in sentiments if s and "neutral" in s.lower()),
+            "mixed": sum(1 for s in sentiments if s and "mixed" in s.lower())
+        }
+        
+        # Count lead temperature categories
+        lead_temps = result.get("lead_temps", [])
+        lead_temp_counts = {
+            "hot": sum(1 for t in lead_temps if t and "hot" in t.lower()),
+            "warm": sum(1 for t in lead_temps if t and "warm" in t.lower()),
+            "cold": sum(1 for t in lead_temps if t and "cold" in t.lower())
+        }
+        
+        # Calculate averages
+        meeting_likes = [m for m in result.get("meeting_likelihoods", []) if m is not None]
+        follow_ups = [f for f in result.get("follow_up_readiness", []) if f is not None]
+        
+        avg_meeting = sum(meeting_likes) / len(meeting_likes) if meeting_likes else 0
+        avg_follow_up = sum(follow_ups) / len(follow_ups) if follow_ups else 0
+        
+        trends.append({
+            "week": f"{year}-W{week_num:02d}",
+            "date": result["first_date"].strftime("%Y-%m-%d"),
+            "total_analyses": result["total_analyses"],
+            "lead_temperature": lead_temp_counts,
+            "sentiment": sentiment_counts,
+            "averages": {
+                "meeting_likelihood": round(avg_meeting, 1),
+                "follow_up_readiness": round(avg_follow_up, 1)
+            },
+            "success_rate": 100.0  # Since we filtered for success only
+        })
+    
+    return trends
 
 
 async def update_analysis(uuid: str, update_data: AnalysisUpdate) -> Optional[Dict[str, Any]]:
