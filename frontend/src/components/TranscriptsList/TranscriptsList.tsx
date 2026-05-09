@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { transcriptApi } from '../../services/api';
 import type { Transcript } from '../../types/api.types';
 import TranscriptCard from './TranscriptCard';
+import Loader from '../Loader';
 import styles from './TranscriptsList.module.scss';
 
 const ITEMS_PER_PAGE = 12;
@@ -65,7 +66,7 @@ const TranscriptsList = () => {
   if (loading && currentPage === 1) {
     return (
       <div className={styles.container}>
-        <div className={styles.loading}>Loading transcripts...</div>
+        <Loader message="Loading transcripts..." />
       </div>
     );
   }

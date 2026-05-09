@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { analysisApi } from '../../services/api';
 import type { Analysis } from '../../types/api.types';
 import AnalysisCard from './AnalysisCard';
+import Loader from '../Loader';
 import styles from './AnalysisList.module.scss';
 
 const ITEMS_PER_PAGE = 12;
@@ -76,7 +77,7 @@ const AnalysisList = () => {
   if (loading && currentPage === 1) {
     return (
       <div className={styles.container}>
-        <div className={styles.loading}>Loading analyses...</div>
+        <Loader message="Loading analyses..." />
       </div>
     );
   }

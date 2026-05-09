@@ -57,14 +57,14 @@ export const analysisApi = {
     return fetchApi<RecentAnalysesResponse>(`/analyses/stats/recent?hours=${hours}`);
   },
 
-  // Get analysis trends (weekly aggregation)
-  getTrends: async (weeks: number = 8): Promise<TrendsResponse> => {
-    return fetchApi<TrendsResponse>(`/analyses/stats/trends?weeks=${weeks}`);
+  // Get analysis trends (daily aggregation)
+  getTrends: async (days: number = 60): Promise<TrendsResponse> => {
+    return fetchApi<TrendsResponse>(`/analyses/stats/trends?days=${days}`);
   },
 
   // Get detailed metrics trends
-  getDetailedMetrics: async (weeks: number = 8): Promise<DetailedMetricsResponse> => {
-    return fetchApi<DetailedMetricsResponse>(`/analyses/stats/detailed-metrics?weeks=${weeks}`);
+  getDetailedMetrics: async (days: number = 60): Promise<DetailedMetricsResponse> => {
+    return fetchApi<DetailedMetricsResponse>(`/analyses/stats/detailed-metrics?days=${days}`);
   },
 
   // Get single analysis by UUID

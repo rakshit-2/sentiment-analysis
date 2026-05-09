@@ -241,12 +241,13 @@ async def get_recent_analyses(hours: int = 24) -> Dict[str, Any]:
     }
 
 
-async def get_analysis_trends(weeks: int = 8) -> List[Dict[str, Any]]:
-    """Get weekly analysis trends for the last N weeks."""
+async def get_analysis_trends(days: int = 60) -> List[Dict[str, Any]]:
+    """Get daily analysis trends for the last N days."""
     collection = get_analyses_collection()
     
     # Calculate the start date
-    start_date = datetime.utcnow() - timedelta(weeks=weeks)
+    end_date = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+    start_date = end_date - timedelta(days=days - 1)
     
     # MongoDB aggregation pipeline
     pipeline = [
@@ -260,7 +261,8 @@ async def get_analysis_trends(weeks: int = 8) -> List[Dict[str, Any]]:
             "$group": {
                 "_id": {
                     "year": {"$year": "$created_at"},
-                    "week": {"$week": "$created_at"}
+                    "month": {"$month": "$created_at"},
+                    "day": {"$dayOfMonth": "$created_at"}
                 },
                 "count": {"$sum": 1},
                 "first_date": {"$min": "$created_at"}
@@ -273,26 +275,33 @@ async def get_analysis_trends(weeks: int = 8) -> List[Dict[str, Any]]:
     
     results = list(collection.aggregate(pipeline))
     
-    # Format the results
-    trends = []
+    # Create a dictionary of dates with counts
+    date_counts = {}
     for result in results:
-        year = result["_id"]["year"]
-        week = result["_id"]["week"]
+        date_str = result["first_date"].strftime("%Y-%m-%d")
+        date_counts[date_str] = result["count"]
+    
+    # Generate all dates in the range and fill in missing dates with 0
+    trends = []
+    current_date = start_date
+    for _ in range(days):
+        date_str = current_date.strftime("%Y-%m-%d")
         trends.append({
-            "week": f"{year}-W{week:02d}",
-            "count": result["count"],
-            "date": result["first_date"].strftime("%Y-%m-%d")
+            "date": date_str,
+            "count": date_counts.get(date_str, 0)
         })
+        current_date += timedelta(days=1)
     
     return trends
 
 
-async def get_detailed_metrics_trends(weeks: int = 8) -> List[Dict[str, Any]]:
+async def get_detailed_metrics_trends(days: int = 60) -> List[Dict[str, Any]]:
     """Get detailed metrics trends with analysis result aggregations."""
     collection = get_analyses_collection()
     
     # Calculate the start date
-    start_date = datetime.utcnow() - timedelta(weeks=weeks)
+    end_date = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+    start_date = end_date - timedelta(days=days - 1)
     
     # MongoDB aggregation pipeline
     pipeline = [
@@ -308,7 +317,8 @@ async def get_detailed_metrics_trends(weeks: int = 8) -> List[Dict[str, Any]]:
             "$group": {
                 "_id": {
                     "year": {"$year": "$created_at"},
-                    "week": {"$week": "$created_at"}
+                    "month": {"$month": "$created_at"},
+                    "day": {"$dayOfMonth": "$created_at"}
                 },
                 "total_analyses": {"$sum": 1},
                 "first_date": {"$min": "$created_at"},
@@ -328,11 +338,10 @@ async def get_detailed_metrics_trends(weeks: int = 8) -> List[Dict[str, Any]]:
     
     results = list(collection.aggregate(pipeline))
     
-    # Format and calculate statistics
-    trends = []
+    # Create a dictionary of dates with their metrics
+    date_metrics = {}
     for result in results:
-        year = result["_id"]["year"]
-        week_num = result["_id"]["week"]
+        date_str = result["first_date"].strftime("%Y-%m-%d")
         
         # Count sentiment categories
         sentiments = result.get("sentiments", [])
@@ -358,9 +367,7 @@ async def get_detailed_metrics_trends(weeks: int = 8) -> List[Dict[str, Any]]:
         avg_meeting = sum(meeting_likes) / len(meeting_likes) if meeting_likes else 0
         avg_follow_up = sum(follow_ups) / len(follow_ups) if follow_ups else 0
         
-        trends.append({
-            "week": f"{year}-W{week_num:02d}",
-            "date": result["first_date"].strftime("%Y-%m-%d"),
+        date_metrics[date_str] = {
             "total_analyses": result["total_analyses"],
             "lead_temperature": lead_temp_counts,
             "sentiment": sentiment_counts,
@@ -369,7 +376,43 @@ async def get_detailed_metrics_trends(weeks: int = 8) -> List[Dict[str, Any]]:
                 "follow_up_readiness": round(avg_follow_up, 1)
             },
             "success_rate": 100.0  # Since we filtered for success only
-        })
+        }
+    
+    # Generate all dates in the range and fill in missing dates with zeros
+    trends = []
+    current_date = start_date
+    for _ in range(days):
+        date_str = current_date.strftime("%Y-%m-%d")
+        
+        if date_str in date_metrics:
+            trends.append({
+                "date": date_str,
+                **date_metrics[date_str]
+            })
+        else:
+            # Fill missing dates with zero values
+            trends.append({
+                "date": date_str,
+                "total_analyses": 0,
+                "lead_temperature": {
+                    "hot": 0,
+                    "warm": 0,
+                    "cold": 0
+                },
+                "sentiment": {
+                    "positive": 0,
+                    "negative": 0,
+                    "neutral": 0,
+                    "mixed": 0
+                },
+                "averages": {
+                    "meeting_likelihood": 0,
+                    "follow_up_readiness": 0
+                },
+                "success_rate": 0
+            })
+        
+        current_date += timedelta(days=1)
     
     return trends
 

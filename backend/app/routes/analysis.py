@@ -70,41 +70,41 @@ async def get_recent_analyses_stats(hours: int = 24):
 
 
 @router.get("/stats/trends")
-async def get_analysis_trends_stats(weeks: int = 8):
+async def get_analysis_trends_stats(days: int = 60):
     """
-    Get weekly analysis trends for the last N weeks.
+    Get daily analysis trends for the last N days.
     
-    - **weeks**: Number of weeks to analyze (default: 8, max: 52)
+    - **days**: Number of days to analyze (default: 60, max: 365)
     
-    Returns weekly aggregated data suitable for charting.
+    Returns daily aggregated data suitable for charting.
     """
-    if weeks > 52:
-        weeks = 52
+    if days > 365:
+        days = 365
     
-    trends = await get_analysis_trends(weeks=weeks)
+    trends = await get_analysis_trends(days=days)
     
     return {
-        "weeks": weeks,
+        "days": days,
         "data": trends
     }
 
 
 @router.get("/stats/detailed-metrics")
-async def get_detailed_metrics_stats(weeks: int = 8):
+async def get_detailed_metrics_stats(days: int = 60):
     """
     Get detailed metrics trends including sentiment, lead temperature, and averages.
     
-    - **weeks**: Number of weeks to analyze (default: 8, max: 52)
+    - **days**: Number of days to analyze (default: 60, max: 365)
     
-    Returns detailed weekly metrics for visualization.
+    Returns detailed daily metrics for visualization.
     """
-    if weeks > 52:
-        weeks = 52
+    if days > 365:
+        days = 365
     
-    metrics = await get_detailed_metrics_trends(weeks=weeks)
+    metrics = await get_detailed_metrics_trends(days=days)
     
     return {
-        "weeks": weeks,
+        "days": days,
         "data": metrics
     }
 

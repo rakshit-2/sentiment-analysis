@@ -24,19 +24,19 @@ const SentimentChart = ({ data }: SentimentChartProps) => {
     );
   }
 
-  const chartData = data.map((week) => ({
-    week: week.week,
-    Positive: week.sentiment.positive,
-    Negative: week.sentiment.negative,
-    Neutral: week.sentiment.neutral,
-    Mixed: week.sentiment.mixed,
+  const chartData = data.map((day) => ({
+    date: day.date,
+    Positive: day.sentiment.positive,
+    Negative: day.sentiment.negative,
+    Neutral: day.sentiment.neutral,
+    Mixed: day.sentiment.mixed,
   }));
 
   return (
     <ResponsiveContainer width="100%" height={280}>
       <BarChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-        <XAxis dataKey="week" stroke="#666" style={{ fontSize: '11px' }} />
+        <XAxis dataKey="date" stroke="#666" style={{ fontSize: '11px' }} interval="preserveStartEnd" />
         <YAxis stroke="#666" style={{ fontSize: '11px' }} allowDecimals={false} />
         <Tooltip
           contentStyle={{

@@ -28,7 +28,6 @@ const Login = () => {
       <div className={styles.loginCard}>
         <div className={styles.loginHeader}>
           <h1>Sentiment Analysis</h1>
-          <p>Sign in to access the dashboard</p>
         </div>
 
         <form onSubmit={handleSubmit} className={styles.loginForm}>

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { transcriptApi, analysisApi } from '../../services/api';
 import type { Transcript, Analysis } from '../../types/api.types';
+import Loader from '../Loader';
 import styles from './TranscriptDetail.module.scss';
 
 const TranscriptDetail = () => {
@@ -42,7 +43,7 @@ const TranscriptDetail = () => {
   if (loading) {
     return (
       <div className={styles.container}>
-        <div className={styles.loading}>Loading transcript...</div>
+        <Loader message="Loading transcript..." />
       </div>
     );
   }

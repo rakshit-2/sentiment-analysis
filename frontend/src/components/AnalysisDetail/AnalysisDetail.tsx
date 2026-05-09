@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { analysisApi, transcriptApi } from '../../services/api';
 import type { Analysis, Transcript } from '../../types/api.types';
+import Loader from '../Loader';
 import styles from './AnalysisDetail.module.scss';
 
 const AnalysisDetail = () => {
@@ -61,7 +62,7 @@ const AnalysisDetail = () => {
   if (loading) {
     return (
       <div className={styles.container}>
-        <div className={styles.loading}>Loading analysis...</div>
+        <Loader message="Loading analysis..." />
       </div>
     );
   }

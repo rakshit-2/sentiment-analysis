@@ -15,9 +15,12 @@ const TrendsChart = ({ data }: TrendsChartProps) => {
     );
   }
 
-  // Format the week label for display
-  const formatWeek = (week: string) => {
-    return week; // Can be customized further if needed
+  // Format the date label for display
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const month = date.toLocaleDateString('en-US', { month: 'short' });
+    const day = date.getDate();
+    return `${month} ${day}`;
   };
 
   return (
@@ -28,10 +31,11 @@ const TrendsChart = ({ data }: TrendsChartProps) => {
       >
         <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
         <XAxis
-          dataKey="week"
-          tickFormatter={formatWeek}
+          dataKey="date"
+          tickFormatter={formatDate}
           stroke="#666"
           style={{ fontSize: '12px' }}
+          interval="preserveStartEnd"
         />
         <YAxis
           stroke="#666"
@@ -44,7 +48,7 @@ const TrendsChart = ({ data }: TrendsChartProps) => {
             border: '1px solid #e0e0e0',
             borderRadius: '4px',
           }}
-          labelFormatter={(label) => `Week: ${label}`}
+          labelFormatter={(label) => `Date: ${formatDate(label as string)}`}
         />
         <Legend />
         <Line
@@ -52,7 +56,7 @@ const TrendsChart = ({ data }: TrendsChartProps) => {
           dataKey="count"
           stroke="#4a90e2"
           strokeWidth={2}
-          dot={{ fill: '#4a90e2', r: 4 }}
+          dot={false}
           activeDot={{ r: 6 }}
           name="Analyses"
         />

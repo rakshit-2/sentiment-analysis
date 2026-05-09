@@ -3,17 +3,32 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  position: relative;
   padding: 1rem;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('../../assets/auth_background_4.jpg'); 
+    background-size: cover;
+    background-position: center;
+    z-index: 0;
+  }
 }
 
 .loginCard {
-  background: white;
+  background: rgba(255, 255, 255, 0.647);
   border-radius: 12px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   padding: 3rem;
   width: 100%;
   max-width: 420px;
+  position: relative;
+  z-index: 1;
 }
 
 .loginHeader {
@@ -87,7 +102,7 @@
 
 .loginButton {
   padding: 1rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0430f2 0%, #13d3fe 100%);
   color: white;
   border: none;
   border-radius: 6px;
@@ -107,7 +122,7 @@
   }
 
   &:disabled {
-    opacity: 0.6;
+    background: linear-gradient(135deg, #616162 0%, #ececec 100%);
     cursor: not-allowed;
   }
 }

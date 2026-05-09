@@ -15,6 +15,7 @@
   justify-content: space-between;
   height: 100%;
   padding: 0 1.5rem;
+  width: 100%;
   max-width: 100%;
 }
 
@@ -29,6 +30,7 @@
   cursor: pointer;
   padding: 0;
   z-index: 10;
+  flex-shrink: 0;
   
   &:hover {
     .hamburger {
@@ -80,6 +82,10 @@
   font-size: 0.9rem;
   color: #666;
   font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
 }
 
 .logoutButton {
@@ -92,6 +98,8 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
 
   &:hover {
     background: #c82333;
@@ -108,7 +116,12 @@
   }
 }
 
+// Tablet and smaller
 @media (max-width: 768px) {
+  .navbarContainer {
+    padding: 0 1rem;
+  }
+
   .logo h1 {
     font-size: 1.2rem;
   }
@@ -124,5 +137,58 @@
 
   .navRight {
     min-width: auto;
+  }
+}
+
+// Mobile devices
+@media (max-width: 480px) {
+  .navbarContainer {
+    padding: 0 0.75rem;
+  }
+
+  .toggleButton {
+    width: 28px;
+    height: 22px;
+    min-width: 28px;
+  }
+
+  .hamburger {
+    width: 28px;
+    height: 2.5px;
+  }
+
+  .logoutButton {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.75rem;
+  }
+
+  .navRight {
+    gap: 0.5rem;
+  }
+}
+
+// Very small devices
+@media (max-width: 360px) {
+  .navbarContainer {
+    padding: 0 0.5rem;
+  }
+
+  .navbar {
+    height: 55px;
+  }
+
+  .toggleButton {
+    width: 25px;
+    height: 20px;
+    min-width: 25px;
+  }
+
+  .hamburger {
+    width: 25px;
+  }
+
+  .logoutButton {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.7rem;
   }
 }

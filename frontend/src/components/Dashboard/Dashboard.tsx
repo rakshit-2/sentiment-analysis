@@ -9,6 +9,7 @@ import SentimentChart from './SentimentChart';
 import MeetingLikelihoodChart from './MeetingLikelihoodChart';
 import FollowUpReadinessChart from './FollowUpReadinessChart';
 import SuccessRateChart from './SuccessRateChart';
+import Loader from '../Loader';
 import styles from './Dashboard.module.scss';
 
 const Dashboard = () => {
@@ -31,8 +32,8 @@ const Dashboard = () => {
       // Fetch recent analyses, trends, and detailed metrics in parallel
       const [recentData, trendsData, detailedMetricsData] = await Promise.all([
         analysisApi.getRecent(24),
-        analysisApi.getTrends(8),
-        analysisApi.getDetailedMetrics(8),
+        analysisApi.getTrends(60),
+        analysisApi.getDetailedMetrics(60),
       ]);
 
       setRecentAnalyses(recentData.analyses);
@@ -53,7 +54,7 @@ const Dashboard = () => {
   if (loading) {
     return (
       <div className={styles.dashboard}>
-        <div className={styles.loading}>Loading dashboard...</div>
+        <Loader message="Loading dashboard..." />
       </div>
     );
   }
@@ -78,8 +79,8 @@ const Dashboard = () => {
       {/* Trends Chart Section */}
       <section className={styles.section}>
         <div className={styles.sectionHeader}>
-          <h2>Weekly Trends</h2>
-          <p className={styles.sectionSubtitle}>Analysis activity over the past 8 weeks</p>
+          <h2>Daily Trends</h2>
+          <p className={styles.sectionSubtitle}>Analysis activity over the past 60 days</p>
         </div>
         <div className={styles.chartContainer}>
           <TrendsChart data={trends} />
