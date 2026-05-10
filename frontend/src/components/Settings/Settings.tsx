@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import UploadTranscriptTab from './UploadTranscriptTab';
+import BulkUploadTranscriptTab from './BulkUploadTranscriptTab';
 import TriggerAnalysisTab from './TriggerAnalysisTab';
 import styles from './Settings.module.scss';
 
-type TabType = 'upload' | 'trigger';
+type TabType = 'upload' | 'bulk-upload' | 'trigger';
 
 const Settings = () => {
   const [activeTab, setActiveTab] = useState<TabType>('upload');
@@ -21,7 +22,13 @@ const Settings = () => {
           className={`${styles.tab} ${activeTab === 'upload' ? styles.active : ''}`}
           onClick={() => setActiveTab('upload')}
         >
-          Upload Transcript
+          Single Upload
+        </button>
+        <button
+          className={`${styles.tab} ${activeTab === 'bulk-upload' ? styles.active : ''}`}
+          onClick={() => setActiveTab('bulk-upload')}
+        >
+          Bulk Upload
         </button>
         <button
           className={`${styles.tab} ${activeTab === 'trigger' ? styles.active : ''}`}
@@ -34,6 +41,7 @@ const Settings = () => {
       {/* Tab Content */}
       <div className={styles.tabContent}>
         {activeTab === 'upload' && <UploadTranscriptTab />}
+        {activeTab === 'bulk-upload' && <BulkUploadTranscriptTab />}
         {activeTab === 'trigger' && <TriggerAnalysisTab />}
       </div>
     </div>

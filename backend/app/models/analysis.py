@@ -126,6 +126,7 @@ class AnalysisResponse(BaseModel):
     id: str = Field(..., alias="_id", description="MongoDB ObjectId as string")
     uuid: str = Field(..., description="UUID for external references")
     transcript_id: str = Field(..., description="UUID of associated transcript")
+    transcript: Optional[Dict[str, Any]] = Field(None, description="Associated transcript object")
     result: Optional[AnalysisResult] = None
     status: AnalysisStatus
     error_message: Optional[str] = None

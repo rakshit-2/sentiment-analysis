@@ -1,6 +1,7 @@
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException, status
-from typing import Optional
+from typing import Optional, List, Dict, Any
 import logging
+import asyncio
 
 from app.models import TranscriptCreate, TranscriptResponse, SourceType, TranscriptMetadata
 from app.database.crud import (
@@ -21,6 +22,7 @@ router = APIRouter()
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB in bytes
 MIN_CONTENT_LENGTH = 10
 MAX_CONTENT_LENGTH = 1_000_000  # ~1MB of text
+MAX_BULK_FILES = 20  # Maximum files per bulk upload
 
 
 @router.post("/upload", response_model=TranscriptResponse, status_code=status.HTTP_201_CREATED)
@@ -116,6 +118,146 @@ async def upload_transcript(
         )
     finally:
         await file.close()
+
+
+async def process_single_file(
+    file: UploadFile,
+    title: Optional[str] = None,
+    description: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Process a single file and return result.
+    Used by both single and bulk upload endpoints.
+    """
+    result = {
+        "filename": file.filename,
+        "status": "failed",
+        "error": None,
+        "transcript": None
+    }
+    
+    try:
+        # Validate file extension
+        if not file.filename.endswith('.txt'):
+            result["error"] = "Invalid file format. Only .txt files are allowed."
+            return result
+        
+        # Use filename (without extension) as title if not provided
+        if not title and file.filename:
+            title = file.filename.rsplit('.', 1)[0]  # Remove .txt extension
+        
+        # Read file content
+        content = await file.read()
+        
+        # Validate file size
+        file_size = len(content)
+        if file_size > MAX_FILE_SIZE:
+            result["error"] = f"File size ({file_size / 1024 / 1024:.2f}MB) exceeds maximum allowed size of 10MB."
+            return result
+        
+        # Decode content
+        try:
+            transcript_text = content.decode('utf-8')
+        except UnicodeDecodeError:
+            result["error"] = "File must be valid UTF-8 encoded text."
+            return result
+        
+        # Validate content length
+        text_length = len(transcript_text.strip())
+        
+        if text_length < MIN_CONTENT_LENGTH:
+            result["error"] = f"Transcript text is too short. Minimum {MIN_CONTENT_LENGTH} characters required."
+            return result
+        
+        if text_length > MAX_CONTENT_LENGTH:
+            result["error"] = f"Transcript text is too long. Maximum {MAX_CONTENT_LENGTH} characters allowed."
+            return result
+        
+        # Create transcript metadata
+        metadata = TranscriptMetadata(
+            title=title,
+            description=description
+        )
+        
+        # Create transcript data
+        transcript_data = TranscriptCreate(
+            transcript=transcript_text.strip(),
+            source=SourceType.MANUAL,
+            metadata=metadata
+        )
+        
+        # Save to database
+        created_transcript = await create_transcript(transcript_data)
+        
+        result["status"] = "success"
+        result["transcript"] = created_transcript
+        
+        logger.info(f"File processed successfully: {file.filename} -> UUID: {created_transcript['uuid']}")
+        
+    except Exception as e:
+        logger.error(f"Error processing file {file.filename}: {str(e)}")
+        result["error"] = f"Processing error: {str(e)}"
+    
+    return result
+
+
+@router.post("/bulk-upload", status_code=status.HTTP_200_OK)
+async def bulk_upload_transcripts(
+    files: List[UploadFile] = File(..., description="Multiple text files (max 20)")
+):
+    """
+    Upload multiple .txt files at once.
+    
+    - **files**: List of text files (.txt) with transcript content (max 20 files, each max 10MB)
+    
+    Returns a summary of successful and failed uploads with details for each file.
+    """
+    
+    # Validate number of files
+    if len(files) > MAX_BULK_FILES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Too many files. Maximum {MAX_BULK_FILES} files allowed per bulk upload."
+        )
+    
+    if len(files) == 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No files provided."
+        )
+    
+    logger.info(f"Processing bulk upload of {len(files)} files")
+    
+    try:
+        # Process all files in parallel
+        tasks = [process_single_file(file) for file in files]
+        results = await asyncio.gather(*tasks)
+        
+        # Calculate summary
+        successful = [r for r in results if r["status"] == "success"]
+        failed = [r for r in results if r["status"] == "failed"]
+        
+        response = {
+            "total": len(files),
+            "successful": len(successful),
+            "failed": len(failed),
+            "results": results
+        }
+        
+        logger.info(f"Bulk upload completed: {len(successful)} successful, {len(failed)} failed")
+        
+        return response
+        
+    except Exception as e:
+        logger.error(f"Error in bulk upload: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred during bulk upload."
+        )
+    finally:
+        # Close all files
+        for file in files:
+            await file.close()
 
 
 @router.get("/{uuid}", response_model=TranscriptResponse)

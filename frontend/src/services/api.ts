@@ -147,6 +147,49 @@ export const transcriptApi = {
 
     return await response.json();
   },
+
+  // Bulk upload transcripts
+  bulkUpload: async (files: File[]): Promise<{
+    total: number;
+    successful: number;
+    failed: number;
+    results: Array<{
+      filename: string;
+      status: 'success' | 'failed';
+      error: string | null;
+      transcript: Transcript | null;
+    }>;
+  }> => {
+    const formData = new FormData();
+    files.forEach(file => {
+      formData.append('files', file);
+    });
+
+    const token = getAuthToken();
+    const url = `${API_BASE_URL}/transcripts/bulk-upload`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Bulk upload failed' }));
+      
+      if (response.status === 401) {
+        sessionStorage.removeItem('auth_token');
+        sessionStorage.removeItem('auth_username');
+        sessionStorage.removeItem('auth_login_time');
+        window.location.href = '/login';
+      }
+      
+      throw new Error(error.detail || `HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    return await response.json();
+  },
 };
 
 // Trigger Analysis API

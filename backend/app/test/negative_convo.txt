@@ -1,0 +1,20 @@
+Agent: Hi, Am I speaking to Mike?
+User: Yes, who is this?
+
+Agent: Hi Mike, this is John calling on behalf of Akamai. How are you doing today?
+User: I’m busy actually. What is this regarding?
+
+Agent: Akamai has recently introduced a research paper on Modern Cyber Security Trends 2026. It covers the latest cyber attack trends and prevention strategies. I believe you are the IT Director at Xiom Tech, correct?
+User: Yes, but we already work with another cybersecurity vendor.
+
+Agent: Understood. I just wanted to check if I could share this research paper with you over email for reference.
+User: No, I’m not interested in receiving marketing emails right now.
+
+Agent: Alright, no problem. Just to confirm, would you be involved in cybersecurity decisions at your organization?
+User: Not really. Our security team handles all of that.
+
+Agent: I see. Would it be okay if an Akamai representative connected with you briefly sometime next week?
+User: No, I don’t think that would be necessary.
+
+Agent: Understood. Thank you for your time today, Mike. Have a great day ahead.
+User: Yeah, thanks. Bye.

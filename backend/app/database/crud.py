@@ -177,7 +177,8 @@ async def list_analyses(
     include_deleted: bool = False
 ) -> List[Dict[str, Any]]:
     """List analyses with optional filtering."""
-    collection = get_analyses_collection()
+    analyses_collection = get_analyses_collection()
+    transcripts_collection = get_transcripts_collection()
     
     query = {}
     if not include_deleted:
@@ -186,16 +187,30 @@ async def list_analyses(
         query["status"] = status
     
     analyses = list(
-        collection.find(query)
+        analyses_collection.find(query)
         .sort("created_at", -1)
         .skip(skip)
         .limit(limit)
     )
     
+    # Enrich with transcript data
+    enriched_analyses = []
     for analysis in analyses:
         analysis["_id"] = str(analysis["_id"])
+        
+        # Fetch associated transcript
+        transcript = transcripts_collection.find_one({
+            "uuid": analysis["transcript_id"],
+            "is_deleted": False
+        })
+        
+        if transcript:
+            transcript["_id"] = str(transcript["_id"])
+            analysis["transcript"] = transcript
+        
+        enriched_analyses.append(analysis)
     
-    return analyses
+    return enriched_analyses
 
 
 async def get_recent_analyses(hours: int = 24) -> Dict[str, Any]:

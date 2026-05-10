@@ -7,7 +7,7 @@ interface AnalysisCardProps {
 }
 
 const AnalysisCard = ({ analysis, onClick }: AnalysisCardProps) => {
-  const { result, status, created_at, transcript } = analysis;
+  const { result, status, created_at, transcript, uuid } = analysis;
 
   // Format date
   const formatDate = (dateString: string) => {
@@ -19,6 +19,14 @@ const AnalysisCard = ({ analysis, onClick }: AnalysisCardProps) => {
       hour: '2-digit',
       minute: '2-digit',
     });
+  };
+
+  // Generate title with transcript name and short ID
+  const getTitle = () => {
+    console.log('xoxo -< >', analysis)
+    const transcriptName = transcript?.metadata?.title || 'Untitled';
+    const shortId = uuid.substring(0, 8);
+    return `${transcriptName} (${shortId})`;
   };
 
   // Get status color
@@ -47,7 +55,7 @@ const AnalysisCard = ({ analysis, onClick }: AnalysisCardProps) => {
     <div className={styles.card} onClick={onClick}>
       <div className={styles.cardHeader}>
         <div className={styles.cardTitle}>
-          {transcript?.metadata?.title || 'Untitled Analysis'}
+          {getTitle()}
         </div>
         <div className={`${styles.status} ${getStatusClass()}`}>
           {status}
