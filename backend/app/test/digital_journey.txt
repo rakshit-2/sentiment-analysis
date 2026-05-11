@@ -1,0 +1,15 @@
+User: Landed on the homepage from a LinkedIn ad
+User: Viewed Zscaler whitepaper for 2m 18s
+User: Clicked "Download Whitepaper" CTA
+User: Filled Form
+User: Abandoned form at phone number field
+User: Viewed Akamai whitepaper
+User: Filled form and downloaded Akamai whitepaper
+User: Visited Pricing Comparison Guide
+User: Spent 15m 11s on price comparison guide
+User: Viewed blog post for Cybersecurity trends
+User: Clicked on top email marketing security Ebook
+User: Watched secure your email infra vlog for 16m 9s
+User: Returned to website after 3 hours
+User: Clicked on Product comparison guide
+User: Spent 20m 5s on comparison guide

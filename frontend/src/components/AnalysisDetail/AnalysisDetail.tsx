@@ -108,56 +108,110 @@ const AnalysisDetail = () => {
 
       {result && (
         <>
-          {/* Call Summary */}
-          <section className={styles.section}>
-            <h2>Call Summary</h2>
-            <div className={styles.summaryGrid}>
-              <div className={styles.summaryCard}>
-                <div className={styles.summaryLabel}>Overall Sentiment</div>
-                <div className={`${styles.summaryValue} ${styles[`sentiment${result.summary.overall_call_sentiment}`]}`}>
-                  {result.summary.overall_call_sentiment}
-                </div>
-              </div>
-              <div className={styles.summaryCard}>
-                <div className={styles.summaryLabel}>Lead Temperature</div>
-                <div className={styles.summaryValue}>{result.summary.lead_temperature}</div>
-              </div>
-              <div className={styles.summaryCard}>
-                <div className={styles.summaryLabel}>Meeting Likelihood</div>
-                <div className={styles.summaryValue}>{result.summary.meeting_likelihood}%</div>
-              </div>
-              <div className={styles.summaryCard}>
-                <div className={styles.summaryLabel}>Follow-up Readiness</div>
-                <div className={styles.summaryValue}>{result.summary.follow_up_readiness}%</div>
-              </div>
-            </div>
-          </section>
-
-          {/* Primary Metrics */}
-          <section className={styles.section}>
-            <h2>Primary Metrics</h2>
-            <div className={styles.metricsGrid}>
-              {Object.entries(result.primary_metrics).map(([key, metric]) => (
-                <div key={key} className={styles.metricCard}>
-                  <div className={styles.metricHeader}>
-                    <h3>{key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</h3>
-                    <div className={styles.score}>{metric.score}/10</div>
+          {/* Summary - Voice Call */}
+          {result.summary.overall_call_sentiment && (
+            <section className={styles.section}>
+              <h2>Call Summary</h2>
+              <div className={styles.summaryGrid}>
+                <div className={styles.summaryCard}>
+                  <div className={styles.summaryLabel}>Overall Sentiment</div>
+                  <div className={`${styles.summaryValue} ${styles[`sentiment${result.summary.overall_call_sentiment}`]}`}>
+                    {result.summary.overall_call_sentiment}
                   </div>
-                  <p className={styles.rationale}>{metric.rationale}</p>
-                  {metric.evidence.length > 0 && (
-                    <div className={styles.evidence}>
-                      <strong>Evidence:</strong>
-                      <ul>
-                        {metric.evidence.map((item: string, idx: number) => (
-                          <li key={idx}>"{item}"</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
                 </div>
-              ))}
-            </div>
-          </section>
+                <div className={styles.summaryCard}>
+                  <div className={styles.summaryLabel}>Lead Temperature</div>
+                  <div className={styles.summaryValue}>{result.summary.lead_temperature}</div>
+                </div>
+                <div className={styles.summaryCard}>
+                  <div className={styles.summaryLabel}>Meeting Likelihood</div>
+                  <div className={styles.summaryValue}>{result.summary.meeting_likelihood}%</div>
+                </div>
+                <div className={styles.summaryCard}>
+                  <div className={styles.summaryLabel}>Follow-up Readiness</div>
+                  <div className={styles.summaryValue}>{result.summary.follow_up_readiness}%</div>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* Summary - Digital Journey */}
+          {result.summary.session_temperature && (
+            <section className={styles.section}>
+              <h2>Journey Summary</h2>
+              <div className={styles.summaryGrid}>
+                <div className={styles.summaryCard}>
+                  <div className={styles.summaryLabel}>Session Temperature</div>
+                  <div className={styles.summaryValue}>{result.summary.session_temperature}</div>
+                </div>
+                <div className={styles.summaryCard}>
+                  <div className={styles.summaryLabel}>Journey Stage</div>
+                  <div className={styles.summaryValue}>{result.summary.journey_stage}</div>
+                </div>
+                <div className={styles.summaryCard}>
+                  <div className={styles.summaryLabel}>Conversion Readiness</div>
+                  <div className={styles.summaryValue}>{result.summary.conversion_readiness}%</div>
+                </div>
+                <div className={styles.summaryCard}>
+                  <div className={styles.summaryLabel}>Content Pieces Consumed</div>
+                  <div className={styles.summaryValue}>{result.summary.content_pieces_consumed}</div>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* Primary Metrics - Only for voice transcripts */}
+          {result.primary_metrics && (
+            <section className={styles.section}>
+              <h2>Primary Metrics</h2>
+              <div className={styles.metricsGrid}>
+                {Object.entries(result.primary_metrics).map(([key, metric]) => (
+                  <div key={key} className={styles.metricCard}>
+                    <div className={styles.metricHeader}>
+                      <h3>{key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</h3>
+                      <div className={styles.score}>{metric.score}/10</div>
+                    </div>
+                    <p className={styles.rationale}>{metric.rationale}</p>
+                    {metric.evidence.length > 0 && (
+                      <div className={styles.evidence}>
+                        <strong>Evidence:</strong>
+                        <ul>
+                          {metric.evidence.map((item: string, idx: number) => (
+                            <li key={idx}>"{item}"</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Digital Journey Metrics - Only for digital transcripts */}
+          {result.engagement_depth && (
+            <section className={styles.section}>
+              <h2>Digital Journey Metrics</h2>
+              <div className={styles.metricsGrid}>
+                <div className={styles.metricCard}>
+                  <div className={styles.metricHeader}>
+                    <h3>Engagement Depth</h3>
+                    <div className={styles.score}>{(result.engagement_depth as any).score}/10</div>
+                  </div>
+                  <p className={styles.rationale}>{(result.engagement_depth as any).rationale}</p>
+                </div>
+                {result.content_consumption && (
+                  <div className={styles.metricCard}>
+                    <div className={styles.metricHeader}>
+                      <h3>Content Consumption</h3>
+                      <div className={styles.score}>{(result.content_consumption as any).score}/10</div>
+                    </div>
+                    <p className={styles.rationale}>{(result.content_consumption as any).rationale}</p>
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
 
           {/* Key Insights */}
           <section className={styles.section}>

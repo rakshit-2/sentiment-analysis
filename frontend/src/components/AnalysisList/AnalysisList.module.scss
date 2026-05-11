@@ -156,6 +156,17 @@
   color: #004085;
 }
 
+.typeBadge {
+  padding: 0.25rem 0.75rem;
+  background-color: #e7f3ff;
+  color: #004085;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 .cardContent {
   margin-bottom: 1rem;
 }

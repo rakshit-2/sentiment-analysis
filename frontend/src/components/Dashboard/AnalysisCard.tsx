@@ -49,46 +49,101 @@ const AnalysisCard = ({ analysis, onClick }: AnalysisCardProps) => {
     return styles.sentimentNeutral;
   };
 
+  // Get type badge
+  const getTypeIcon = () => {
+    return transcript?.type === 'digital' ? '🌐' : '🎤';
+  };
+
+  const getTypeLabel = () => {
+    return transcript?.type === 'digital' ? 'Digital' : 'Voice';
+  };
+
   return (
     <div className={styles.card} onClick={onClick}>
-      <div className={styles.cardHeader}>
+      <div className={styles.cardHeader} style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
         <div className={styles.cardTitle}>
           {getTitle()}
         </div>
-        <div className={`${styles.status} ${getStatusClass()}`}>
-          {status}
+        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+          {transcript && (
+            <div className={styles.typeBadge}>
+              {getTypeIcon()} {getTypeLabel()}
+            </div>
+          )}
+          <div className={`${styles.status} ${getStatusClass()}`}>
+            {status}
+          </div>
         </div>
       </div>
 
       {result && (
         <div className={styles.cardContent}>
-          <div className={styles.metricRow}>
-            <span className={styles.metricLabel}>Sentiment:</span>
-            <span className={`${styles.metricValue} ${getSentimentClass(result.summary.overall_call_sentiment)}`}>
-              {result.summary.overall_call_sentiment}
-            </span>
-          </div>
+          {/* Voice call metrics */}
+          {result.summary?.overall_call_sentiment && (
+            <>
+              <div className={styles.metricRow}>
+                <span className={styles.metricLabel}>Sentiment:</span>
+                <span className={`${styles.metricValue} ${getSentimentClass(result.summary.overall_call_sentiment)}`}>
+                  {result.summary.overall_call_sentiment}
+                </span>
+              </div>
 
-          <div className={styles.metricRow}>
-            <span className={styles.metricLabel}>Lead Temp:</span>
-            <span className={styles.metricValue}>
-              {result.summary.lead_temperature}
-            </span>
-          </div>
+              <div className={styles.metricRow}>
+                <span className={styles.metricLabel}>Lead Temp:</span>
+                <span className={styles.metricValue}>
+                  {result.summary.lead_temperature}
+                </span>
+              </div>
 
-          <div className={styles.metricRow}>
-            <span className={styles.metricLabel}>Meeting Likelihood:</span>
-            <span className={styles.metricValue}>
-              {result.summary.meeting_likelihood}%
-            </span>
-          </div>
+              <div className={styles.metricRow}>
+                <span className={styles.metricLabel}>Meeting Likelihood:</span>
+                <span className={styles.metricValue}>
+                  {result.summary.meeting_likelihood}%
+                </span>
+              </div>
 
-          {result.notable_buying_signals.length > 0 && (
-            <div className={styles.signals}>
-              <span className={styles.signalBadge}>
-                {result.notable_buying_signals.length} Buying Signal{result.notable_buying_signals.length !== 1 ? 's' : ''}
-              </span>
-            </div>
+              {result.notable_buying_signals && result.notable_buying_signals.length > 0 && (
+                <div className={styles.signals}>
+                  <span className={styles.signalBadge}>
+                    {result.notable_buying_signals.length} Buying Signal{result.notable_buying_signals.length !== 1 ? 's' : ''}
+                  </span>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Digital journey metrics */}
+          {result.summary?.session_temperature && (
+            <>
+              <div className={styles.metricRow}>
+                <span className={styles.metricLabel}>Session Temp:</span>
+                <span className={styles.metricValue}>
+                  {result.summary.session_temperature}
+                </span>
+              </div>
+
+              <div className={styles.metricRow}>
+                <span className={styles.metricLabel}>Journey Stage:</span>
+                <span className={styles.metricValue}>
+                  {result.summary.journey_stage}
+                </span>
+              </div>
+
+              <div className={styles.metricRow}>
+                <span className={styles.metricLabel}>Conversion:</span>
+                <span className={styles.metricValue}>
+                  {result.summary.conversion_readiness}%
+                </span>
+              </div>
+
+              {result.conversion_signals && result.conversion_signals.length > 0 && (
+                <div className={styles.signals}>
+                  <span className={styles.signalBadge}>
+                    {result.conversion_signals.length} Conversion Signal{result.conversion_signals.length !== 1 ? 's' : ''}
+                  </span>
+                </div>
+              )}
+            </>
           )}
         </div>
       )}

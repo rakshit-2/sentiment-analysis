@@ -9,7 +9,8 @@ from app.celery_app import celery_app
 from app.database.connection import get_transcripts_collection, get_analyses_collection
 from app.database.crud import create_analysis_sync
 from app.models import AnalysisCreate, AnalysisStatus, AnalysisUpdate, AnalysisResult, ModelInfo
-from app.services.openai_service import analyze_sentiment
+from app.models.transcript import TranscriptType
+from app.services.openai_service import analyze_sentiment, analyze_digital_journey
 from app.config import settings
 
 logger = logging.getLogger(__name__)
@@ -118,12 +119,21 @@ def analyze_unprocessed_transcripts(self, batch_size: int = None):
                     }
                 )
                 
-                # Call OpenAI for sentiment analysis
-                logger.info(f"Calling OpenAI API for transcript: {transcript_uuid}")
-                sentiment_result = analyze_sentiment(
-                    transcript_text=transcript["transcript"],
-                    transcript_id=transcript_uuid
-                )
+                # Determine transcript type and call appropriate analysis function
+                transcript_type = transcript.get("type", TranscriptType.VOICE.value)
+                logger.info(f"Calling OpenAI API for transcript: {transcript_uuid} (type: {transcript_type})")
+                
+                if transcript_type == TranscriptType.DIGITAL.value:
+                    sentiment_result = analyze_digital_journey(
+                        transcript_text=transcript["transcript"],
+                        transcript_id=transcript_uuid
+                    )
+                else:
+                    # Default to voice analysis (for backward compatibility)
+                    sentiment_result = analyze_sentiment(
+                        transcript_text=transcript["transcript"],
+                        transcript_id=transcript_uuid
+                    )
                 
                 # Update analysis with results
                 update_data = {

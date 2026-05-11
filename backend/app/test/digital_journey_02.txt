@@ -1,0 +1,8 @@
+User: Landed on homepage through email link
+User: Clicked on Netapp Secure Cloud whitepaper
+User: Viewed Whitepaper description
+User: Downloaded Netapp Secure Cloud whitepaper through form fill.
+User: Clicked on AI/ML Vlog
+User: Watched the Vlog for 18m 47s
+User: Viewed AI/ML Ebook
+User: Downloaded AI/ML Ebook through form fill

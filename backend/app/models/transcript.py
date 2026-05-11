@@ -11,6 +11,12 @@ class SourceType(str, Enum):
     MANUAL = "manual"
 
 
+class TranscriptType(str, Enum):
+    """Enum for transcript types (content/interaction type)."""
+    VOICE = "voice"      # B2B sales call transcripts
+    DIGITAL = "digital"  # User journey/website interaction transcripts
+
+
 class S3Metadata(BaseModel):
     """S3 metadata for transcripts sourced from S3."""
     bucket: str
@@ -29,6 +35,7 @@ class TranscriptCreate(BaseModel):
     """Model for creating a new transcript."""
     transcript: str = Field(..., description="The transcript text content")
     source: SourceType = Field(..., description="Source of the transcript")
+    type: TranscriptType = Field(..., description="Type of transcript (voice or digital)")
     s3_metadata: Optional[S3Metadata] = Field(None, description="S3 metadata if source is s3")
     metadata: Optional[TranscriptMetadata] = Field(default_factory=TranscriptMetadata)
 
@@ -37,6 +44,7 @@ class TranscriptCreate(BaseModel):
             "example": {
                 "transcript": "This is a sample transcript text...",
                 "source": "manual",
+                "type": "voice",
                 "metadata": {
                     "title": "Customer Call - Jan 2024",
                     "description": "Support call regarding billing"
@@ -58,6 +66,7 @@ class TranscriptResponse(BaseModel):
     uuid: str = Field(..., description="UUID for external references")
     transcript: str
     source: SourceType
+    type: TranscriptType
     s3_metadata: Optional[S3Metadata] = None
     metadata: TranscriptMetadata
     is_deleted: bool = False
@@ -73,6 +82,7 @@ class TranscriptResponse(BaseModel):
                 "uuid": "123e4567-e89b-12d3-a456-426614174000",
                 "transcript": "This is a sample transcript...",
                 "source": "manual",
+                "type": "voice",
                 "metadata": {
                     "title": "Customer Call",
                     "description": "Support call"
@@ -90,6 +100,7 @@ class TranscriptDB(BaseModel):
     uuid: str = Field(default_factory=lambda: str(uuid.uuid4()))
     transcript: str
     source: SourceType
+    type: TranscriptType = TranscriptType.VOICE  # Default to VOICE for backward compatibility
     s3_metadata: Optional[S3Metadata] = None
     metadata: TranscriptMetadata = Field(default_factory=TranscriptMetadata)
     is_deleted: bool = False

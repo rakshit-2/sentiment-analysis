@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Union
 from datetime import datetime
 from enum import Enum
 import uuid
@@ -63,13 +63,21 @@ class ParameterMetrics(BaseModel):
 
 class AnalysisResult(BaseModel):
     """Model for B2B sales conversation intelligence analysis result."""
-    summary: CallSummary = Field(..., description="High-level call summary")
-    primary_metrics: PrimaryMetrics = Field(..., description="Primary analysis dimensions")
-    parameter_metrics: ParameterMetrics = Field(..., description="Detailed parameter metrics")
+    summary: Optional[Union[CallSummary, dict]] = Field(None, description="High-level call summary")
+    primary_metrics: Optional[Union[PrimaryMetrics, dict]] = Field(None, description="Primary analysis dimensions")
+    parameter_metrics: Optional[Union[ParameterMetrics, dict]] = Field(None, description="Detailed parameter metrics")
     notable_buying_signals: List[str] = Field(default_factory=list, description="Key buying signals detected")
     objections_detected: List[str] = Field(default_factory=list, description="Objections raised")
     risks_detected: List[str] = Field(default_factory=list, description="Risks identified")
     next_best_action: List[str] = Field(default_factory=list, description="Recommended next actions")
+    
+    # Digital-specific fields
+    engagement_depth: Optional[dict] = Field(None, description="Digital engagement metrics")
+    content_consumption: Optional[dict] = Field(None, description="Content consumption metrics")
+    time_investment: Optional[dict] = Field(None, description="Time investment analysis")
+    drop_off_signals: List[str] = Field(default_factory=list, description="Drop-off signals")
+    conversion_signals: List[str] = Field(default_factory=list, description="Conversion signals")
+    friction_points: List[str] = Field(default_factory=list, description="Friction points")
 
     class Config:
         json_schema_extra = {
@@ -87,6 +95,76 @@ class AnalysisResult(BaseModel):
                 "objections_detected": ["Price concerns"],
                 "risks_detected": ["Decision timeline unclear"],
                 "next_best_action": ["Send pricing proposal", "Schedule demo"]
+            }
+        }
+
+
+# Digital Journey Analysis Models
+class DigitalEngagementMetric(BaseModel):
+    """Model for digital engagement metrics."""
+    score: int = Field(..., ge=0, le=10, description="Score from 1-10")
+    key_actions: List[str] = Field(default_factory=list, description="Key actions taken by user")
+    rationale: str = Field(..., description="Brief explanation of the score")
+
+
+class TimeInvestmentAnalysis(BaseModel):
+    """Model for time investment analysis."""
+    total_session_time: str = Field(..., description="Total time in session (e.g., '32m 44s')")
+    high_value_content_time: str = Field(..., description="Time on high-value content (e.g., '20m 5s')")
+    average_time_per_content: str = Field(..., description="Average time per content piece")
+    depth_score: int = Field(..., ge=0, le=10, description="Time investment depth score 1-10")
+
+
+class DigitalJourneySummary(BaseModel):
+    """Model for digital journey summary."""
+    session_temperature: str = Field(..., description="Cold/Warm/Hot")
+    conversion_readiness: int = Field(..., ge=0, le=100, description="Percentage 0-100")
+    journey_stage: str = Field(..., description="e.g., Research, Comparison, Decision")
+    content_pieces_consumed: int = Field(..., description="Number of content pieces viewed")
+    high_intent_actions: List[str] = Field(default_factory=list, description="High-intent actions taken")
+
+
+class DigitalAnalysisResult(BaseModel):
+    """Model for digital journey analysis result."""
+    summary: DigitalJourneySummary = Field(..., description="High-level journey summary")
+    engagement_depth: DigitalEngagementMetric = Field(..., description="Engagement depth analysis")
+    content_consumption: DigitalEngagementMetric = Field(..., description="Content consumption quality")
+    time_investment: TimeInvestmentAnalysis = Field(..., description="Time investment analysis")
+    drop_off_signals: List[str] = Field(default_factory=list, description="Drop-off or abandonment signals")
+    conversion_signals: List[str] = Field(default_factory=list, description="Positive conversion signals")
+    friction_points: List[str] = Field(default_factory=list, description="Friction or hesitation points")
+    next_best_action: List[str] = Field(default_factory=list, description="Recommended follow-ups")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "summary": {
+                    "session_temperature": "Warm",
+                    "conversion_readiness": 65,
+                    "journey_stage": "Comparison",
+                    "content_pieces_consumed": 7,
+                    "high_intent_actions": ["Downloaded whitepaper", "Viewed pricing guide"]
+                },
+                "engagement_depth": {
+                    "score": 7,
+                    "key_actions": ["Extended vlog watch", "Multiple pricing views"],
+                    "rationale": "High engagement with premium content"
+                },
+                "content_consumption": {
+                    "score": 8,
+                    "key_actions": ["Zscaler whitepaper", "Akamai whitepaper", "Email security ebook"],
+                    "rationale": "Consumed multiple high-value assets"
+                },
+                "time_investment": {
+                    "total_session_time": "35m 18s",
+                    "high_value_content_time": "20m 5s",
+                    "average_time_per_content": "5m 2s",
+                    "depth_score": 8
+                },
+                "drop_off_signals": ["Abandoned form at phone number"],
+                "conversion_signals": ["Downloaded whitepaper", "Returned after 3 hours"],
+                "friction_points": ["Form abandonment", "Phone number field"],
+                "next_best_action": ["Send email campaign", "Retarget with demo offer"]
             }
         }
 

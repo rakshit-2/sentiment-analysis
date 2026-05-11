@@ -10,6 +10,7 @@ export interface Transcript {
   uuid: string;
   transcript: string;
   source: 'manual' | 's3';
+  type: 'voice' | 'digital';
   metadata: TranscriptMetadata;
   is_deleted: boolean;
   created_at: string;
@@ -28,10 +29,16 @@ export interface AskingToTellingMetric extends MetricScore {
 }
 
 export interface CallSummary {
-  overall_call_sentiment: string;
-  lead_temperature: string;
-  meeting_likelihood: number;
-  follow_up_readiness: number;
+  overall_call_sentiment?: string;
+  lead_temperature?: string;
+  meeting_likelihood?: number;
+  follow_up_readiness?: number;
+  // Digital journey fields
+  session_temperature?: string;
+  conversion_readiness?: number;
+  journey_stage?: string;
+  content_pieces_consumed?: number;
+  high_intent_actions?: string[];
 }
 
 export interface PrimaryMetrics {
@@ -59,12 +66,19 @@ export interface ParameterMetrics {
 
 export interface AnalysisResult {
   summary: CallSummary;
-  primary_metrics: PrimaryMetrics;
-  parameter_metrics: ParameterMetrics;
+  primary_metrics?: PrimaryMetrics;
+  parameter_metrics?: ParameterMetrics;
   notable_buying_signals: string[];
   objections_detected: string[];
   risks_detected: string[];
   next_best_action: string[];
+  // Digital journey fields
+  engagement_depth?: Record<string, unknown>;
+  content_consumption?: Record<string, unknown>;
+  time_investment?: Record<string, unknown>;
+  drop_off_signals?: string[];
+  conversion_signals?: string[];
+  friction_points?: string[];
 }
 
 export interface ModelInfo {

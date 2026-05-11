@@ -9,6 +9,7 @@ const UploadTranscriptTab = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [file, setFile] = useState<File | null>(null);
+  const [type, setType] = useState<'voice' | 'digital'>('voice');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [uploading, setUploading] = useState(false);
@@ -69,6 +70,7 @@ const UploadTranscriptTab = () => {
 
       const result = await transcriptApi.upload(
         file,
+        type,
         title || undefined,
         description || undefined
       );
@@ -76,6 +78,7 @@ const UploadTranscriptTab = () => {
       setSuccess(result);
       // Reset form
       setFile(null);
+      setType('voice');
       setTitle('');
       setDescription('');
       if (fileInputRef.current) {
@@ -139,6 +142,26 @@ const UploadTranscriptTab = () => {
               </div>
             )}
           </div>
+        </div>
+
+        {/* Transcript Type */}
+        <div className={styles.formGroup}>
+          <label htmlFor="type">Transcript Type *</label>
+          <select
+            id="type"
+            value={type}
+            onChange={(e) => setType(e.target.value as 'voice' | 'digital')}
+            className={styles.input}
+            disabled={uploading}
+          >
+            <option value="voice">🎤 Voice Call (B2B Sales Conversation)</option>
+            <option value="digital">🌐 Digital Journey (Website User Interaction)</option>
+          </select>
+          <small className={styles.helpText}>
+            {type === 'voice' 
+              ? 'Select this for B2B sales call transcripts - analyzes tone, buying signals, objections'
+              : 'Select this for digital user journey logs - analyzes engagement, conversion signals, time investment'}
+          </small>
         </div>
 
         {/* Title */}

@@ -15,6 +15,7 @@ const BulkUploadTranscriptTab = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [files, setFiles] = useState<FileStatus[]>([]);
+  const [type, setType] = useState<'voice' | 'digital'>('voice');
   const [uploading, setUploading] = useState(false);
   const [uploadComplete, setUploadComplete] = useState(false);
   const [dragActive, setDragActive] = useState(false);
@@ -80,7 +81,7 @@ const BulkUploadTranscriptTab = () => {
       setFiles(prev => prev.map(f => ({ ...f, status: 'uploading' as const })));
 
       const fileList = files.map(f => f.file);
-      const result = await transcriptApi.bulkUpload(fileList);
+      const result = await transcriptApi.bulkUpload(fileList, type);
 
       // Update file statuses based on results
       setFiles(prev => prev.map((fileStatus, index) => {
@@ -162,6 +163,26 @@ const BulkUploadTranscriptTab = () => {
               </p>
             </div>
           </div>
+        </div>
+
+        {/* Transcript Type */}
+        <div className={styles.formGroup}>
+          <label htmlFor="bulkType">Transcript Type (applies to ALL files) *</label>
+          <select
+            id="bulkType"
+            value={type}
+            onChange={(e) => setType(e.target.value as 'voice' | 'digital')}
+            className={styles.input}
+            disabled={uploading}
+          >
+            <option value="voice">🎤 Voice Call (B2B Sales Conversation)</option>
+            <option value="digital">🌐 Digital Journey (Website User Interaction)</option>
+          </select>
+          <small className={styles.helpText}>
+            {type === 'voice' 
+              ? 'All files will be analyzed as B2B sales call transcripts'
+              : 'All files will be analyzed as digital user journey logs'}
+          </small>
         </div>
 
         {/* File List */}

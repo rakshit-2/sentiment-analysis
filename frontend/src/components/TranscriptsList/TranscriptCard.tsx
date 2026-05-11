@@ -7,7 +7,7 @@ interface TranscriptCardProps {
 }
 
 const TranscriptCard = ({ transcript, onClick }: TranscriptCardProps) => {
-  const { metadata, source, created_at, transcript: content } = transcript;
+  const { metadata, source, type, created_at, transcript: content } = transcript;
 
   // Format date
   const formatDate = (dateString: string) => {
@@ -37,14 +37,28 @@ const TranscriptCard = ({ transcript, onClick }: TranscriptCardProps) => {
     return source === 's3' ? styles.sourceS3 : styles.sourceManual;
   };
 
+  // Get type badge
+  const getTypeIcon = () => {
+    return type === 'digital' ? '🌐' : '🎤';
+  };
+
+  const getTypeLabel = () => {
+    return type === 'digital' ? 'Digital' : 'Voice';
+  };
+
   return (
     <div className={styles.card} onClick={onClick}>
       <div className={styles.cardHeader}>
         <div className={styles.cardTitle}>
           {metadata?.title || 'Untitled Transcript'}
         </div>
-        <div className={`${styles.source} ${getSourceClass()}`}>
-          {source === 's3' ? 'S3' : 'Manual'}
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <div className={styles.typeBadge}>
+            {getTypeIcon()} {getTypeLabel()}
+          </div>
+          <div className={`${styles.source} ${getSourceClass()}`}>
+            {source === 's3' ? 'S3' : 'Manual'}
+          </div>
         </div>
       </div>
 

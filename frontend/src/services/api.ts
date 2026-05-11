@@ -116,9 +116,10 @@ export const transcriptApi = {
   },
 
   // Upload transcript
-  upload: async (file: File, title?: string, description?: string): Promise<Transcript> => {
+  upload: async (file: File, type: 'voice' | 'digital', title?: string, description?: string): Promise<Transcript> => {
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('type', type);
     if (title) formData.append('title', title);
     if (description) formData.append('description', description);
 
@@ -149,7 +150,7 @@ export const transcriptApi = {
   },
 
   // Bulk upload transcripts
-  bulkUpload: async (files: File[]): Promise<{
+  bulkUpload: async (files: File[], type: 'voice' | 'digital'): Promise<{
     total: number;
     successful: number;
     failed: number;
@@ -164,6 +165,7 @@ export const transcriptApi = {
     files.forEach(file => {
       formData.append('files', file);
     });
+    formData.append('type', type);
 
     const token = getAuthToken();
     const url = `${API_BASE_URL}/transcripts/bulk-upload`;

@@ -4,6 +4,7 @@ import logging
 import asyncio
 
 from app.models import TranscriptCreate, TranscriptResponse, SourceType, TranscriptMetadata
+from app.models.transcript import TranscriptType
 from app.database.crud import (
     create_transcript,
     get_transcript_by_uuid,
@@ -28,6 +29,7 @@ MAX_BULK_FILES = 20  # Maximum files per bulk upload
 @router.post("/upload", response_model=TranscriptResponse, status_code=status.HTTP_201_CREATED)
 async def upload_transcript(
     file: UploadFile = File(..., description="Text file containing the transcript"),
+    type: str = Form(..., description="Type of transcript: 'voice' or 'digital'"),
     title: Optional[str] = Form(None, description="Optional title for the transcript"),
     description: Optional[str] = Form(None, description="Optional description")
 ):
@@ -35,6 +37,7 @@ async def upload_transcript(
     Upload a .txt file containing transcript text.
     
     - **file**: Text file (.txt) with transcript content (max 10MB)
+    - **type**: Type of transcript ('voice' for B2B sales calls, 'digital' for user journeys) - REQUIRED
     - **title**: Optional title for the transcript
     - **description**: Optional description
     
@@ -88,6 +91,15 @@ async def upload_transcript(
         
         logger.info(f"File validated successfully. Text length: {text_length} characters")
         
+        # Validate transcript type
+        try:
+            transcript_type = TranscriptType(type.lower())
+        except ValueError:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid transcript type: '{type}'. Must be 'voice' or 'digital'."
+            )
+        
         # Create transcript metadata
         metadata = TranscriptMetadata(
             title=title,
@@ -98,6 +110,7 @@ async def upload_transcript(
         transcript_data = TranscriptCreate(
             transcript=transcript_text.strip(),
             source=SourceType.MANUAL,
+            type=transcript_type,
             metadata=metadata
         )
         
@@ -122,6 +135,7 @@ async def upload_transcript(
 
 async def process_single_file(
     file: UploadFile,
+    transcript_type: TranscriptType = TranscriptType.VOICE,
     title: Optional[str] = None,
     description: Optional[str] = None
 ) -> Dict[str, Any]:
@@ -183,6 +197,7 @@ async def process_single_file(
         transcript_data = TranscriptCreate(
             transcript=transcript_text.strip(),
             source=SourceType.MANUAL,
+            type=transcript_type,
             metadata=metadata
         )
         
@@ -203,12 +218,14 @@ async def process_single_file(
 
 @router.post("/bulk-upload", status_code=status.HTTP_200_OK)
 async def bulk_upload_transcripts(
-    files: List[UploadFile] = File(..., description="Multiple text files (max 20)")
+    files: List[UploadFile] = File(..., description="Multiple text files (max 20)"),
+    type: str = Form(..., description="Type of transcript: 'voice' or 'digital' - applies to ALL files")
 ):
     """
-    Upload multiple .txt files at once.
+    Upload multiple .txt files at once. All files will be assigned the same transcript type.
     
     - **files**: List of text files (.txt) with transcript content (max 20 files, each max 10MB)
+    - **type**: Type for ALL transcripts ('voice' or 'digital') - REQUIRED
     
     Returns a summary of successful and failed uploads with details for each file.
     """
@@ -226,11 +243,20 @@ async def bulk_upload_transcripts(
             detail="No files provided."
         )
     
-    logger.info(f"Processing bulk upload of {len(files)} files")
+    # Validate transcript type
+    try:
+        transcript_type = TranscriptType(type.lower())
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid transcript type: '{type}'. Must be 'voice' or 'digital'."
+        )
+    
+    logger.info(f"Processing bulk upload of {len(files)} files with type '{transcript_type.value}'")
     
     try:
-        # Process all files in parallel
-        tasks = [process_single_file(file) for file in files]
+        # Process all files in parallel with the specified type
+        tasks = [process_single_file(file, transcript_type) for file in files]
         results = await asyncio.gather(*tasks)
         
         # Calculate summary
