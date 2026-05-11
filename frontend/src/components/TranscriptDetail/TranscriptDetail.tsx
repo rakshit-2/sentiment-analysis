@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { transcriptApi, analysisApi } from '../../services/api';
 import type { Transcript, Analysis } from '../../types/api.types';
+import { formatISTFull, formatISTDate } from '../../utils/dateUtils';
 import Loader from '../Loader';
 import styles from './TranscriptDetail.module.scss';
 
@@ -62,7 +63,7 @@ const TranscriptDetail = () => {
     );
   }
 
-  const { metadata, source, created_at, updated_at, transcript: content } = transcript;
+  const { metadata, source, created_at, transcript: content } = transcript;
 
   const getWordCount = (text: string) => {
     return text.trim().split(/\s+/).length;
@@ -82,7 +83,7 @@ const TranscriptDetail = () => {
               {source === 's3' ? 'S3 Import' : 'Manual Upload'}
             </span>
             <span className={styles.date}>
-              Created: {new Date(created_at).toLocaleString()}
+              Created: {formatISTFull(created_at)}
             </span>
           </div>
         </div>
@@ -126,9 +127,9 @@ const TranscriptDetail = () => {
                 onClick={() => navigate(`/analysis/${analysis.uuid}`)}
               >
                 <div className={styles.analysisHeader}>
-                  <span className={styles.analysisDate}>
-                    {new Date(analysis.created_at).toLocaleDateString()}
-                  </span>
+                <span className={styles.analysisDate}>
+                  {formatISTDate(analysis.created_at)}
+                </span>
                   <span className={`${styles.analysisStatus} ${styles[`status${analysis.status.charAt(0).toUpperCase() + analysis.status.slice(1)}`]}`}>
                     {analysis.status}
                   </span>

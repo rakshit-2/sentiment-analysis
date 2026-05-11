@@ -143,6 +143,7 @@ export interface DetailedMetricData {
   date: string;
   total_analyses: number;
   lead_temperature: LeadTemperatureCounts;
+  session_temperature?: Record<string, number>; // For digital transcripts
   sentiment: SentimentCounts;
   averages: MetricAverages;
   success_rate: number;

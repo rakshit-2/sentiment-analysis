@@ -339,8 +339,10 @@ async def get_detailed_metrics_trends(days: int = 60) -> List[Dict[str, Any]]:
                 "first_date": {"$min": "$created_at"},
                 # Sentiment aggregation
                 "sentiments": {"$push": "$result.summary.overall_call_sentiment"},
-                # Lead temperature aggregation
+                # Lead temperature aggregation (voice)
                 "lead_temps": {"$push": "$result.summary.lead_temperature"},
+                # Session temperature aggregation (digital)
+                "session_temps": {"$push": "$result.summary.session_temperature"},
                 # Average metrics
                 "meeting_likelihoods": {"$push": "$result.summary.meeting_likelihood"},
                 "follow_up_readiness": {"$push": "$result.summary.follow_up_readiness"}
@@ -367,13 +369,21 @@ async def get_detailed_metrics_trends(days: int = 60) -> List[Dict[str, Any]]:
             "mixed": sum(1 for s in sentiments if s and "mixed" in s.lower())
         }
         
-        # Count lead temperature categories
+        # Count lead temperature categories (voice)
         lead_temps = result.get("lead_temps", [])
         lead_temp_counts = {
             "hot": sum(1 for t in lead_temps if t and "hot" in t.lower()),
             "warm": sum(1 for t in lead_temps if t and "warm" in t.lower()),
             "cold": sum(1 for t in lead_temps if t and "cold" in t.lower())
         }
+        
+        # Count session temperature categories (digital) - dynamically count all values
+        session_temps = result.get("session_temps", [])
+        session_temp_counts = {}
+        for temp in session_temps:
+            if temp:
+                temp_lower = temp.lower()
+                session_temp_counts[temp_lower] = session_temp_counts.get(temp_lower, 0) + 1
         
         # Calculate averages
         meeting_likes = [m for m in result.get("meeting_likelihoods", []) if m is not None]
@@ -382,7 +392,7 @@ async def get_detailed_metrics_trends(days: int = 60) -> List[Dict[str, Any]]:
         avg_meeting = sum(meeting_likes) / len(meeting_likes) if meeting_likes else 0
         avg_follow_up = sum(follow_ups) / len(follow_ups) if follow_ups else 0
         
-        date_metrics[date_str] = {
+        metrics_dict = {
             "total_analyses": result["total_analyses"],
             "lead_temperature": lead_temp_counts,
             "sentiment": sentiment_counts,
@@ -392,6 +402,12 @@ async def get_detailed_metrics_trends(days: int = 60) -> List[Dict[str, Any]]:
             },
             "success_rate": 100.0  # Since we filtered for success only
         }
+        
+        # Add session_temperature if there are any digital transcripts
+        if session_temp_counts:
+            metrics_dict["session_temperature"] = session_temp_counts
+        
+        date_metrics[date_str] = metrics_dict
     
     # Generate all dates in the range and fill in missing dates with zeros
     trends = []

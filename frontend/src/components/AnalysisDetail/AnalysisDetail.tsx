@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { analysisApi, transcriptApi } from '../../services/api';
 import type { Analysis, Transcript } from '../../types/api.types';
+import { formatISTFull } from '../../utils/dateUtils';
 import Loader from '../Loader';
 import styles from './AnalysisDetail.module.scss';
 
@@ -96,11 +97,11 @@ const AnalysisDetail = () => {
             {status}
           </span>
           <span className={styles.date}>
-            Created: {new Date(created_at).toLocaleString()}
+            Created: {formatISTFull(created_at)}
           </span>
           {analyzed_at && (
             <span className={styles.date}>
-              Analyzed: {new Date(analyzed_at).toLocaleString()}
+              Analyzed: {formatISTFull(analyzed_at)}
             </span>
           )}
         </div>

@@ -32,8 +32,8 @@ const Dashboard = () => {
       // Fetch recent analyses, trends, and detailed metrics in parallel
       const [recentData, trendsData, detailedMetricsData] = await Promise.all([
         analysisApi.getRecent(24),
-        analysisApi.getTrends(60),
-        analysisApi.getDetailedMetrics(60),
+        analysisApi.getTrends(30),
+        analysisApi.getDetailedMetrics(30),
       ]);
 
       setRecentAnalyses(recentData.analyses);
@@ -80,7 +80,7 @@ const Dashboard = () => {
       <section className={styles.section}>
         <div className={styles.sectionHeader}>
           <h2>Daily Trends</h2>
-          <p className={styles.sectionSubtitle}>Analysis activity over the past 60 days</p>
+          <p className={styles.sectionSubtitle}>Analysis activity over the past 30 days</p>
         </div>
         <div className={styles.chartContainer}>
           <TrendsChart data={trends} />

@@ -1,4 +1,5 @@
 import type { Analysis } from '../../types/api.types';
+import { formatISTDateTime } from '../../utils/dateUtils';
 import styles from './Dashboard.module.scss';
 
 interface AnalysisCardProps {
@@ -8,17 +9,6 @@ interface AnalysisCardProps {
 
 const AnalysisCard = ({ analysis, onClick }: AnalysisCardProps) => {
   const { result, status, created_at, transcript, uuid } = analysis;
-
-  // Format date
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
 
   // Generate title with transcript name and short ID
   const getTitle = () => {
@@ -161,7 +151,7 @@ const AnalysisCard = ({ analysis, onClick }: AnalysisCardProps) => {
       )}
 
       <div className={styles.cardFooter}>
-        <span className={styles.timestamp}>{formatDate(created_at)}</span>
+        <span className={styles.timestamp}>{formatISTDateTime(created_at)}</span>
       </div>
     </div>
   );

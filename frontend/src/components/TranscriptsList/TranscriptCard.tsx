@@ -1,4 +1,5 @@
 import type { Transcript } from '../../types/api.types';
+import { formatISTDateTime } from '../../utils/dateUtils';
 import styles from './TranscriptsList.module.scss';
 
 interface TranscriptCardProps {
@@ -8,18 +9,6 @@ interface TranscriptCardProps {
 
 const TranscriptCard = ({ transcript, onClick }: TranscriptCardProps) => {
   const { metadata, source, type, created_at, transcript: content } = transcript;
-
-  // Format date
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
 
   // Get word count
   const getWordCount = (text: string) => {
@@ -84,7 +73,7 @@ const TranscriptCard = ({ transcript, onClick }: TranscriptCardProps) => {
       </div>
 
       <div className={styles.cardFooter}>
-        <span className={styles.timestamp}>Created {formatDate(created_at)}</span>
+        <span className={styles.timestamp}>Created {formatISTDateTime(created_at)}</span>
       </div>
     </div>
   );
