@@ -88,7 +88,7 @@ const AnalysisList = () => {
         <div className={styles.error}>
           <h3>Error loading analyses</h3>
           <p>{error}</p>
-          <button onClick={loadAnalyses} className={styles.retryButton}>
+          <button onClick={() => loadAnalyses()} className={styles.retryButton}>
             Retry
           </button>
         </div>
