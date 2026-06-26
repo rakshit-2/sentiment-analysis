@@ -1,27 +1,16 @@
-services:
-  redis:
-    ports: !reset []
+# Production — use with:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 
+services:
   backend:
     ports:
       - "127.0.0.1:8000:8000"
-    volumes: !reset []
     restart: unless-stopped
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "python",
-          "-c",
-          "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')",
-        ]
 
   celery-worker:
-    volumes: !reset []
     restart: unless-stopped
 
   celery-beat:
-    volumes: !reset []
     restart: unless-stopped
 
   flower:

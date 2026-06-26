@@ -1,12 +1,7 @@
-version: '3.8'
-
 services:
-  # Redis Service (Message Broker for Celery)
   redis:
     image: redis:7-alpine
     container_name: sentiment-analysis-redis
-    ports:
-      - "6380:6379"
     volumes:
       - redis_data:/data
     restart: unless-stopped
@@ -18,24 +13,27 @@ services:
     networks:
       - sentiment-network
 
-  # FastAPI Backend Service
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: sentiment-analysis-backend
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     env_file:
       - ./backend/.env.local
-    volumes:
-      - ./backend/app:/app/app:ro
     depends_on:
       redis:
         condition: service_healthy
     restart: "on-failure:1"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -43,7 +41,6 @@ services:
     networks:
       - sentiment-network
 
-  # Celery Worker
   celery-worker:
     build:
       context: ./backend
@@ -52,8 +49,6 @@ services:
     command: celery -A app.celery_app worker --loglevel=info
     env_file:
       - ./backend/.env.local
-    volumes:
-      - ./backend/app:/app/app:ro
     depends_on:
       redis:
         condition: service_healthy
@@ -63,7 +58,6 @@ services:
     networks:
       - sentiment-network
 
-  # Celery Beat (Scheduler)
   celery-beat:
     build:
       context: ./backend
@@ -72,8 +66,6 @@ services:
     command: celery -A app.celery_app beat --loglevel=info
     env_file:
       - ./backend/.env.local
-    volumes:
-      - ./backend/app:/app/app:ro
     depends_on:
       redis:
         condition: service_healthy
@@ -83,15 +75,12 @@ services:
     networks:
       - sentiment-network
 
-  # Flower (Celery Monitoring UI)
   flower:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: sentiment-analysis-flower
     command: celery -A app.celery_app flower --port=5555
-    ports:
-      - "5555:5555"
     env_file:
       - ./backend/.env.local
     depends_on:

@@ -1,0 +1,25 @@
+# Local development — use with:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+
+services:
+  redis:
+    ports:
+      - "6380:6379"
+
+  backend:
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/app:/app/app:ro
+
+  celery-worker:
+    volumes:
+      - ./backend/app:/app/app:ro
+
+  celery-beat:
+    volumes:
+      - ./backend/app:/app/app:ro
+
+  flower:
+    ports:
+      - "5555:5555"
