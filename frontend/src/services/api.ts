@@ -84,7 +84,7 @@ export const analysisApi = {
     if (params?.status) queryParams.append('status', params.status);
 
     const query = queryParams.toString();
-    return fetchApi<Analysis[]>(`/analyses${query ? `?${query}` : ''}`);
+    return fetchApi<Analysis[]>(`/analyses/${query ? `?${query}` : ''}`);
   },
 
   // Get analyses for a transcript
@@ -112,7 +112,7 @@ export const transcriptApi = {
     if (params?.source) queryParams.append('source', params.source);
 
     const query = queryParams.toString();
-    return fetchApi<Transcript[]>(`/transcripts${query ? `?${query}` : ''}`);
+    return fetchApi<Transcript[]>(`/transcripts/${query ? `?${query}` : ''}`);
   },
 
   // Upload transcript
